@@ -1,0 +1,175 @@
+{
+    "PYTHA plugin entry point": {
+        "prefix": "pytha-main",
+        "body": [
+            "function main()",
+            "\t${0:-- plugin code here}",
+            "end"
+        ],
+        "description": "Empty PYTHA plugin entry point. Matches the function name referenced from config.xml."
+    },
+    "PYTHA modal dialog": {
+        "prefix": "pytha-dialog",
+        "body": [
+            "local function init_dialog(dialog)",
+            "\tpyui.set_window_title(dialog, \"${1:My dialog}\")",
+            "",
+            "\tlocal label = pyui.create_label(dialog, \"1\", pyloc \"${2:Label}\")",
+            "\tlocal text_box = pyui.create_text_box(dialog, \"2\", \"\")",
+            "",
+            "\tlocal ok_btn = pyui.create_ok_button(dialog, \"1\", pyloc \"OK\")",
+            "\tlocal cancel_btn = pyui.create_cancel_button(dialog, \"2\", pyloc \"Cancel\")",
+            "",
+            "\treturn {",
+            "\t\ttext_box = text_box,",
+            "\t}",
+            "end",
+            "",
+            "local result = pyui.run_modal_dialog(init_dialog)",
+            "if result then",
+            "\t${0:-- handle OK}",
+            "end"
+        ],
+        "description": "Modal dialog scaffold with title, label, text box and OK / Cancel buttons."
+    },
+    "PYTHA group box": {
+        "prefix": "pytha-groupbox",
+        "body": [
+            "pyui.create_group_box(dialog, \"${1:1-2}\", pyloc \"${2:Group title}\")",
+            "${0}",
+            "pyui.end_group_box(dialog)"
+        ],
+        "description": "Group box with begin / end pair."
+    },
+    "PYTHA foldable group box": {
+        "prefix": "pytha-foldable",
+        "body": [
+            "pyui.create_foldable_group_box(dialog, \"${1:1-2}\", pyloc \"${2:Group title}\")",
+            "${0}",
+            "pyui.end_group_box(dialog)"
+        ],
+        "description": "Foldable group box with begin / end pair."
+    },
+    "PYTHA create block": {
+        "prefix": "pytha-block",
+        "body": [
+            "local part = pytha.create_block(${1:length}, ${2:width}, ${3:height}, {${4:x}, ${5:y}, ${6:z}})"
+        ],
+        "description": "Create a block (cuboid)."
+    },
+    "PYTHA create cylinder": {
+        "prefix": "pytha-cylinder",
+        "body": [
+            "local part = pytha.create_cylinder(${1:height}, ${2:radius}, {${3:x}, ${4:y}, ${5:z}})"
+        ],
+        "description": "Create a cylinder."
+    },
+    "PYTHA create polygon": {
+        "prefix": "pytha-polygon",
+        "body": [
+            "local part = pytha.create_polygon({",
+            "\t{${1:x1}, ${2:y1}, ${3:z1}},",
+            "\t{${4:x2}, ${5:y2}, ${6:z2}},",
+            "\t{${7:x3}, ${8:y3}, ${9:z3}},",
+            "})"
+        ],
+        "description": "Create a face polygon from a point list."
+    },
+    "PYTHA boolean difference": {
+        "prefix": "pytha-difference",
+        "body": [
+            "local result = pytha.boole_part_difference(${1:base}, { ${2:cutter} })"
+        ],
+        "description": "Subtract cutters from a base part."
+    },
+    "PYTHA boolean union": {
+        "prefix": "pytha-union",
+        "body": [
+            "local result = pytha.boole_part_union({ ${1:part1}, ${2:part2} })"
+        ],
+        "description": "Merge parts into one."
+    },
+    "PYTHA local coordinates push/pop": {
+        "prefix": "pytha-local-coords",
+        "body": [
+            "local token = pytha.push_local_coordinates({${1:x}, ${2:y}, ${3:z}}, {",
+            "\tu_axis = {${4:1, 0, 0}},",
+            "\tv_axis = {${5:0, 1, 0}},",
+            "\tw_axis = {${6:0, 0, 1}},",
+            "})",
+            "${0}",
+            "pytha.pop_local_coordinates(token)"
+        ],
+        "description": "Push a local coordinate system, do work, pop."
+    },
+    "PYTHA iterate parts": {
+        "prefix": "pytha-foreach-part",
+        "body": [
+            "for _, part in ipairs(pytha.enumerate_parts()) do",
+            "\t${0:-- process part}",
+            "end"
+        ],
+        "description": "Iterate over all parts in the model."
+    },
+    "PYTHA identify part": {
+        "prefix": "pytha-identify-part",
+        "body": [
+            "local part = pyux.select_part(${1:false}, pyloc \"${2:Pick a part}\")",
+            "if not part then return end",
+            "${0}"
+        ],
+        "description": "Ask the user to pick a part."
+    },
+    "PYTHA identify coordinate": {
+        "prefix": "pytha-identify-coord",
+        "body": [
+            "local coord = pyux.select_coordinate(${1:false}, pyloc \"${2:Pick a point}\")",
+            "if not coord then return end",
+            "${0}"
+        ],
+        "description": "Ask the user to pick a coordinate."
+    },
+    "PYTHA on_change handler": {
+        "prefix": "pytha-on-change",
+        "body": [
+            "pyui.set_on_change_handler(${1:control}, function()",
+            "\t${0}",
+            "end)"
+        ],
+        "description": "Bind a change handler to a control."
+    },
+    "PYTHA on_click handler": {
+        "prefix": "pytha-on-click",
+        "body": [
+            "pyui.set_on_click_handler(${1:button}, function()",
+            "\t${0}",
+            "end)"
+        ],
+        "description": "Bind a click handler to a button."
+    },
+    "PYTHA element attribute set": {
+        "prefix": "pytha-set-attr",
+        "body": [
+            "pytha.set_element_attributes(${1:element}, {",
+            "\t[\"${2:attribute_name}\"] = ${3:value},",
+            "})"
+        ],
+        "description": "Set attributes on an element."
+    },
+    "PYTHA group with name": {
+        "prefix": "pytha-group",
+        "body": [
+            "local group = pytha.create_group({${1:elements}}, { name = pyloc \"${2:Group name}\" })"
+        ],
+        "description": "Group elements into a named group."
+    },
+    "PYTHA save / load plugin values": {
+        "prefix": "pytha-persist",
+        "body": [
+            "local stored = pyio.load_values(\"${1:my_settings}\") or {}",
+            "${0}",
+            "pyio.save_values(\"${1}\", stored)"
+        ],
+        "description": "Load plugin-local persistent values, mutate, save back."
+    }
+}

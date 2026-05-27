@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://xmlns.pytha.com/plugin_config/1.0"
+           targetNamespace="http://xmlns.pytha.com/plugin_config/1.0"
+           elementFormDefault="qualified">
+
+  <!-- ============================================================
+       Root: <plugin>
+       ============================================================ -->
+  <xs:element name="plugin">
+    <xs:annotation>
+      <xs:documentation>Root element of a PYTHA plugin configuration.</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="header" type="HeaderType"/>
+        <xs:element name="extension" type="ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ============================================================
+       <header>
+       ============================================================ -->
+  <xs:complexType name="HeaderType">
+    <xs:annotation>
+      <xs:documentation>Plugin metadata. Identifies the plugin and declares compatibility.</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="guid" type="GuidType">
+        <xs:annotation>
+          <xs:documentation>Globally unique identifier (UUID v4). Generate one when starting a new plugin.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="version" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Version of the plugin (free-form string). When multiple versions are installed PYTHA loads the newest.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="pytha-version" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Minimum PYTHA version required to run the plugin (e.g. "26.0").</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Human-readable plugin name. Localizable via .xlif files.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="description" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Longer description of the plugin. Localizable via .xlif files.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="licensing" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Human-readable licensing information. Not enforced by PYTHA.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="GuidType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ============================================================
+       <extension>  (union of all known extension shapes)
+       ============================================================ -->
+  <xs:complexType name="ExtensionType">
+    <xs:annotation>
+      <xs:documentation>
+        Declares one entry point of the plugin. The `type` attribute selects
+        which fields are meaningful. Common children: entry-point, id, caption,
+        description, help-file, file-filter, cam-system.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="entry-point" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name of the Lua function invoked by this extension.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="id" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Optional extension id. Required for edit/update/attribute/cam-native-macro/file-import extensions to disambiguate or match history ids. Letters, digits, `_` and `-` only.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="caption" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Button text shown in the PYTHA UI. Localizable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="description" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tooltip / hover description. Localizable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="help-file" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Help file path (.html, .pdf or .txt) opened on right-click.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="file-filter" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>File filter for type="file-import", e.g. "*.txt".</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="cam-system" type="CamSystemType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>For type="cam-native-macro": CAM system identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="type" type="ExtensionTypeEnum" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="ExtensionTypeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="function">
+        <xs:annotation><xs:documentation>Adds a button to the PYTHA UI that invokes a Lua function.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="edit">
+        <xs:annotation><xs:documentation>Invoked when the user right-clicks a part and selects "Edit". Matches on history id.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="update">
+        <xs:annotation><xs:documentation>Invoked by Parametric -&gt; Update from variables. Matches on history id.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="attribute">
+        <xs:annotation><xs:documentation>Custom attribute calculation. Function called per element.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="part-selector">
+        <xs:annotation><xs:documentation>Button in the part selector dialog that mutates the current selection.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="cam-native-macro">
+        <xs:annotation><xs:documentation>Customizes CAM output for a named my-macro.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="file-import">
+        <xs:annotation><xs:documentation>Adds an entry to the Import menu. Available from PYTHA V26.</xs:documentation></xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CamSystemType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bsolid_cix"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,99 @@
+{
+  "name": "pytha-lua-support",
+  "displayName": "PYTHA Lua Support",
+  "description": "IntelliSense, type hints and inline documentation for the PYTHA 3D-CAD Lua plugin API.",
+  "version": "0.2.0",
+  "publisher": "pytha-3d-cad",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pytha-3d-cad/pytha-lua-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pytha-3d-cad/pytha-lua-api/issues"
+  },
+  "homepage": "https://github.com/pytha-3d-cad/pytha-lua-api/wiki",
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "activationEvents": [
+    "onLanguage:lua"
+  ],
+  "icon": "icon/PYTHA-Logo.png",
+  "galleryBanner": {
+    "color": "#555555",
+    "theme": "dark"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "pytha",
+    "lua",
+    "cad",
+    "3d",
+    "plugin"
+  ],
+  "extensionDependencies": [
+    "sumneko.lua"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "lua",
+        "path": "./snippets/lua.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "pytha.openWikiHome",
+        "title": "PYTHA: Open API Wiki",
+        "category": "PYTHA"
+      },
+      {
+        "command": "pytha.openWikiForSymbol",
+        "title": "PYTHA: Open wiki for symbol under cursor",
+        "category": "PYTHA"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "pytha.openWikiForSymbol",
+          "when": "editorLangId == lua",
+          "group": "navigation@9"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "pytha.openWikiForSymbol",
+        "key": "ctrl+f1",
+        "when": "editorLangId == lua && editorTextFocus"
+      }
+    ],
+    "xmlValidation": [
+      {
+        "fileMatch": "config.xml",
+        "url": "./schemas/config.xsd"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "gen:stubs": "node scripts/generate-stubs.mjs",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.94.0",
+    "typescript": "^5.4.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}
