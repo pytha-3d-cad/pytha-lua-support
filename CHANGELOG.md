@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1
+
+- `repository`, `bugs` and `homepage` now point at the new dedicated `pytha-lua-support` repository instead of the API documentation repo. README links to `CHANGELOG.md` and to the bundled GIF now resolve correctly on the Marketplace page.
+
 ## 0.2.0
 
 - Added commands **PYTHA: Open API Wiki** and **PYTHA: Open wiki for symbol under cursor** (`Ctrl+F1`, also in the Lua editor context menu).

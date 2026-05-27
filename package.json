@@ -2,17 +2,17 @@
   "name": "pytha-lua-support",
   "displayName": "PYTHA Lua Support",
   "description": "IntelliSense, type hints and inline documentation for the PYTHA 3D-CAD Lua plugin API.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "pytha-3d-cad",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pytha-3d-cad/pytha-lua-api.git"
+    "url": "https://github.com/pytha-3d-cad/pytha-lua-support.git"
   },
   "bugs": {
-    "url": "https://github.com/pytha-3d-cad/pytha-lua-api/issues"
+    "url": "https://github.com/pytha-3d-cad/pytha-lua-support/issues"
   },
-  "homepage": "https://github.com/pytha-3d-cad/pytha-lua-api/wiki",
+  "homepage": "https://github.com/pytha-3d-cad/pytha-lua-support#readme",
   "engines": {
     "vscode": "^1.94.0"
   },

@@ -40,3 +40,7 @@ Stubs live in [`libs/pytha.lua`](libs/pytha.lua) and follow the LuaLS `---@meta`
 1. Find the matching `.md` file in the [API wiki](https://github.com/pytha-3d-cad/pytha-lua-api/wiki).
 2. Add or update the function in `libs/pytha.lua` using the existing format (short bold description, wiki link, `@param`/`@return` annotations).
 3. Use `---@overload` for alternative signatures rather than duplicate `function` declarations.
+
+## Release Notes
+
+See [CHANGELOG.md](CHANGELOG.md).
