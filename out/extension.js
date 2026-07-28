@@ -98,7 +98,28 @@ function activate(context) {
         }
         context.subscriptions.push(vscode.commands.registerCommand('pytha.openWikiHome', openWikiHome), vscode.commands.registerCommand('pytha.openWikiForSymbol', openWikiForSymbol));
         registerPylocDiagnostics(context);
+        registerDebugAdapter(context);
     });
+}
+/**
+ * Registers the "pytha-lua" debug adapter. Rather than launching a debug adapter
+ * executable, it points VS Code at the DAP server that runs inside PYTHA (TCP, on
+ * localhost). The server is started on demand by PYTHA itself; this extension only
+ * tells VS Code how to reach it for an `attach` session.
+ */
+function registerDebugAdapter(context) {
+    const factory = {
+        createDebugAdapterDescriptor(session) {
+            var _a, _b, _c, _d;
+            const cfg = session.configuration;
+            const settings = vscode.workspace.getConfiguration('pytha-lua');
+            // Precedence: explicit value in launch.json > user/workspace setting > built-in default.
+            const host = (_b = (_a = cfg.host) !== null && _a !== void 0 ? _a : settings.get('host')) !== null && _b !== void 0 ? _b : '127.0.0.1';
+            const port = (_d = (_c = cfg.port) !== null && _c !== void 0 ? _c : settings.get('port')) !== null && _d !== void 0 ? _d : 4711;
+            return new vscode.DebugAdapterServer(port, host);
+        },
+    };
+    context.subscriptions.push(vscode.debug.registerDebugAdapterDescriptorFactory('pytha-lua', factory));
 }
 /**
  * Warns when `pyloc()` is called with a non-literal argument.

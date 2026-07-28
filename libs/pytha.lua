@@ -7,6 +7,7 @@ pyio = {}
 pyux = {}
 pygeo = {}
 pyplot = {}
+pydim = {}
 
 ---@class Origin A table with three numbers `{x, y, z}` where:
 ---@field  x number The X dimension.
@@ -22,6 +23,10 @@ pyplot = {}
 ---@class section_handle : element_handle
 ---@class plot_sheet_handle : element_handle
 ---@class plot_detail_handle : element_handle
+
+---@class dimension_point A dimension point `{ {x,y,z} [, element] }` where:
+---@field [1] table Coordinate `{x, y, z}` of an existing part point or reference point
+---@field [2]? element_handle Optional part or group handle restricting the point search
 
 ---@class polyline_segment
 ---@field r? number Radius of the arc (arc segments only)
@@ -2210,7 +2215,7 @@ function pygeo.clean_polygon_2d_ex(loops) end
 ---@param edges? table Optional constraint edges as pairs of 1-based indices `{{i1,i2}, ...}`
 ---@return table triangles `{{p1,p2,p3}, ...}` triples of 1-based vertex indices (CCW)
 ---@return table triangle_edges `{{k1,k2,k3}, ...}` edge index triples; edge `k_j` lies opposite vertex `p_j`
----@return table triangle_neighbours `{{n1,n2,n3}, ...}` neighbour triangle indices; `0` means boundary
+---@return table triangle_neighbours `{{n1,n2,n3}, ...}` 1-based neighbour triangle indices; `n_j` is the neighbour opposite vertex `p_j` (sharing edge `k_j`); `0` means boundary
 function pygeo.create_triangulation(points, edges) end
 
 
@@ -2487,5 +2492,91 @@ function pyux.set_timer_handler(func, id) end
 ---@param seconds number Timer interval in seconds. Must be `> 0`
 ---@param id? integer Optional timer id (default `0`)
 function pyux.start_timer(seconds, id) end
+
+
+
+-- =====================================================================
+-- pydim.*
+-- =====================================================================
+-- Dimension points are tables { {x,y,z} [, element] }: the coordinate must coincide with an
+-- existing part point or reference point. Reference points take priority over part points;
+-- a group handle only matches the group's reference points.
+-- Dimensions are created in the model, not on plot sheets.
+
+
+---**Creates a linear dimension between two part points**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pydim.create_linear_dimension)
+---In the plane views `"horizontal"`/`"vertical"` measure along the view axes and `"parallel"`
+---along the connection of the two points. In the axo view `"horizontal"`/`"vertical"` require
+---`plane`, `"parallel"` requires `axis` and `plane`.
+---Minimum PYTHA version: V27.
+---@param point1 dimension_point First dimension point `{ {x,y,z} [, element] }`
+---@param point2 dimension_point Second dimension point
+---@param options? table Optional options table:
+--- - type: string `"horizontal"`, `"vertical"` or `"parallel"` (default)
+--- - view: string View the dimension is displayed in: `"xy"`, `"-xy"`, `"xz"`, `"-xz"`, `"yz"`, `"-yz"` or `"axo"` (default)
+--- - distance: number Signed distance of the dimension line from `point1` (default `0`)
+--- - plane: string (axo only) Plane the dimension lies in: `"xy"`, `"xz"` or `"yz"`
+--- - axis: string (axo parallel only) Axis the dimension line is parallel to: `"x"`, `"y"` or `"z"`
+--- - saw_angle: boolean `true` additionally shows the saw angle
+--- - style_file: file_handle Dimension style file loaded as the base style
+--- - style: table Individual style settings: decimals, text_pen, line_pen, extension_pen, delimiter_pen, delimiter, delimiter_size, extension_style, extension_value, extension_line_type, no_extension_lines, text_position, text_distance, architecture_notation, tolerance_plus, tolerance_minus, leading_text, trailing_text, subtext, diameter, font, text_height, text_ratio, bold, italic, layer, in_object_units
+---@return element_handle|nil dimension The new dimension, or `nil` if a point is not found or the dimension value would be 0
+function pydim.create_linear_dimension(point1, point2, options) end
+
+
+
+---**Creates a radius, diameter, center or arc-length dimension from three points on an arc**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pydim.create_radial_dimension)
+---The three points lie on the arc in the order start, on-arc, end and must not be collinear.
+---Minimum PYTHA version: V27.
+---@param point1 dimension_point Start of the arc `{ {x,y,z} [, element] }`
+---@param point2 dimension_point A point on the arc between start and end
+---@param point3 dimension_point End of the arc
+---@param options? table Optional options table:
+--- - type: string `"radius"` (default), `"diameter"`, `"center"` or `"arc_length"`
+--- - view: string View the dimension is displayed in: `"xy"`, `"-xy"`, `"xz"`, `"-xz"`, `"yz"`, `"-yz"` or `"axo"` (default)
+--- - angle: number Angular position around the arc in degrees, relative to the direction of `point2` (default `0`)
+--- - length: number Length of the dimension line as a factor of the radius: `1` ends on the arc, larger values place arrow and text outside (default `1`)
+--- - style_file: file_handle Dimension style file loaded as the base style
+--- - style: table Individual style settings (see `pydim.create_linear_dimension`)
+---@return element_handle|nil dimension The new dimension, or `nil` if a point is not found or the points are collinear
+function pydim.create_radial_dimension(point1, point2, point3, options) end
+
+
+
+---**Creates an angle dimension between two edges**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pydim.create_angular_dimension)
+---`point1`/`point2` and `point3`/`point4` each describe a part edge via its two end coordinates.
+---Parallel edges automatically yield an edge-distance dimension.
+---Minimum PYTHA version: V27.
+---@param point1 dimension_point First end of the first edge `{ {x,y,z} [, part] }`
+---@param point2 dimension_point Second end of the first edge
+---@param point3 dimension_point First end of the second edge
+---@param point4 dimension_point Second end of the second edge
+---@param options? table Optional options table:
+--- - view: string View the dimension is displayed in: `"xy"`, `"-xy"`, `"xz"`, `"-xz"`, `"yz"`, `"-yz"` or `"axo"` (default)
+--- - distance: number Radius of the angle arc — for parallel edges the position of the dimension line along the edges (default `0`)
+--- - style_file: file_handle Dimension style file loaded as the base style
+--- - style: table Individual style settings (see `pydim.create_linear_dimension`)
+---@return element_handle|nil dimension The new dimension, or `nil` if an edge is not found or the dimension is degenerate
+function pydim.create_angular_dimension(point1, point2, point3, point4, options) end
+
+
+
+---**Creates a perpendicular dimension from a point onto an edge**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pydim.create_perpendicular_dimension)
+---`edge_point1`/`edge_point2` describe a part edge via its two end coordinates.
+---The position is determined by the foot of the perpendicular.
+---Minimum PYTHA version: V27.
+---@param point dimension_point The point the perpendicular starts from `{ {x,y,z} [, element] }`
+---@param edge_point1 dimension_point First end of the edge
+---@param edge_point2 dimension_point Second end of the edge
+---@param options? table Optional options table:
+--- - view: string View the dimension is displayed in: `"xy"`, `"-xy"`, `"xz"`, `"-xz"`, `"yz"`, `"-yz"` or `"axo"` (default)
+--- - style_file: file_handle Dimension style file loaded as the base style
+--- - style: table Individual style settings (see `pydim.create_linear_dimension`)
+---@return element_handle|nil dimension The new dimension, or `nil` if the point or the edge is not found or the perpendicular has length 0
+function pydim.create_perpendicular_dimension(point, edge_point1, edge_point2, options) end
 
 

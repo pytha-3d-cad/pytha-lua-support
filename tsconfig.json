@@ -6,6 +6,11 @@
 		"lib": [
 			"es6"
 		],
+		/* Only use this project's own @types; do not climb to ancestor node_modules
+		   directories (e.g. a stray C:\Users\<user>\node_modules\@types\emscripten). */
+		"typeRoots": [
+			"./node_modules/@types"
+		],
 		"sourceMap": true,
 		"rootDir": "src",
 		/* Strict Type-Checking Option */

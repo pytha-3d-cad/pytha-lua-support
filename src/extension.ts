@@ -107,6 +107,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     );
 
     registerPylocDiagnostics(context);
+    registerDebugAdapter(context);
+}
+
+/**
+ * Registers the "pytha-lua" debug adapter. Rather than launching a debug adapter
+ * executable, it points VS Code at the DAP server that runs inside PYTHA (TCP, on
+ * localhost). The server is started on demand by PYTHA itself; this extension only
+ * tells VS Code how to reach it for an `attach` session.
+ */
+function registerDebugAdapter(context: vscode.ExtensionContext): void {
+    const factory: vscode.DebugAdapterDescriptorFactory = {
+        createDebugAdapterDescriptor(session: vscode.DebugSession): vscode.ProviderResult<vscode.DebugAdapterDescriptor> {
+            const cfg = session.configuration as { host?: string; port?: number };
+            const settings = vscode.workspace.getConfiguration('pytha-lua');
+            // Precedence: explicit value in launch.json > user/workspace setting > built-in default.
+            const host = cfg.host ?? settings.get<string>('host') ?? '127.0.0.1';
+            const port = cfg.port ?? settings.get<number>('port') ?? 4711;
+            return new vscode.DebugAdapterServer(port, host);
+        },
+    };
+
+    context.subscriptions.push(
+        vscode.debug.registerDebugAdapterDescriptorFactory('pytha-lua', factory),
+    );
 }
 
 /**

@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.4.0
+
+- The debug server host/port are now configurable via settings (`pytha-lua.port`, `pytha-lua.host`). A `port`/`host` in the launch configuration still overrides the setting.
+
+## 0.3.0
+
+- Added a debug adapter for the `pytha-lua` debug type. It attaches VS Code to the DAP server embedded in PYTHA (TCP, `127.0.0.1:4711` by default; `host`/`port` configurable) so Lua plugins can be debugged directly in the editor. Use the **PYTHA Lua (attach)** launch configuration.
+- Registered `lua` for breakpoints so they can be set in plugin source files.
+
 ## 0.2.1
 
 - `repository`, `bugs` and `homepage` now point at the new dedicated `pytha-lua-support` repository instead of the API documentation repo. README links to `CHANGELOG.md` and to the bundled GIF now resolve correctly on the Marketplace page.

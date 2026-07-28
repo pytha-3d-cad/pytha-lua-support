@@ -2,7 +2,7 @@
   "name": "pytha-lua-support",
   "displayName": "PYTHA Lua Support",
   "description": "IntelliSense, type hints and inline documentation for the PYTHA 3D-CAD Lua plugin API.",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "publisher": "pytha-3d-cad",
   "license": "MIT",
   "repository": {
@@ -17,7 +17,8 @@
     "vscode": "^1.94.0"
   },
   "activationEvents": [
-    "onLanguage:lua"
+    "onLanguage:lua",
+    "onDebugResolve:pytha-lua"
   ],
   "icon": "icon/PYTHA-Logo.png",
   "galleryBanner": {
@@ -41,6 +42,23 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "PYTHA Lua",
+      "properties": {
+        "pytha-lua.port": {
+          "type": "number",
+          "default": 4711,
+          "minimum": 1,
+          "maximum": 65535,
+          "markdownDescription": "Port of the PYTHA Lua debug server. Must match the **Lua Debugger Port** configured in PYTHA. A `port` in the launch configuration overrides this."
+        },
+        "pytha-lua.host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "Host of the PYTHA Lua debug server. A 'host' in the launch configuration overrides this."
+        }
+      }
+    },
     "snippets": [
       {
         "language": "lua",
@@ -79,6 +97,45 @@
       {
         "fileMatch": "config.xml",
         "url": "./schemas/config.xsd"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "lua"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "pytha-lua",
+        "label": "PYTHA Lua",
+        "languages": [
+          "lua"
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Host of the PYTHA DAP server.",
+                "default": "127.0.0.1"
+              },
+              "port": {
+                "type": "number",
+                "description": "Port of the PYTHA DAP server.",
+                "default": 4711
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "pytha-lua",
+            "request": "attach",
+            "name": "PYTHA Lua (attach)",
+            "host": "127.0.0.1",
+            "port": 4711
+          }
+        ]
       }
     ]
   },
