@@ -1,4 +1,14 @@
----@meta pyui 
+---@meta pyui
+
+
+---**The `pyui.*` apis contain all functions necessary for displaying dialogs and creating user interfaces for your plugin.**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui)<br>
+---
+---Be sure to have a look at the tutorial [The first dialog](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-first-dialog)
+---and the [gallery of controls](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery).<br>
+---
+---It is also very easy to prepare your plugin for translation/localization. So please read
+---[this tutorial](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-Localization-and-Translation) and add pyloc to your strings right from the beginning!
 pyui = {}
 
 

@@ -1,3 +1,6 @@
+---@meta pyux
+
+---**The `pyux.*` api functions allow the interaction of the user with objects in the scene.**
 pyux = {}
 
 ---Normalized viewport coordinates `{u, v}`
