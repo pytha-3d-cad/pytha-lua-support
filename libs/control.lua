@@ -70,17 +70,17 @@ local combo_box = {}
 
 ---**See also:**
 ---[Control Gallery](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery), 
----@class pen_list: control_handle
+---@class pen_list: control_handle, control_list
 local pen_list = {}
 
 ---**See also:**
 ---[Control Gallery](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery), 
----@class linetype_list: control_handle
+---@class linetype_list: control_handle, control_list
 local linetype_list = {}
 
 ---**See also:**
 ---[Control Gallery](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery), 
----@class layer_list: control_handle
+---@class layer_list: control_handle, control_list
 local layer_list = {}
 
 
@@ -197,18 +197,23 @@ function control_list:set_control_selection(index) end
 
 
 
-
 ---**Sets the checked-state of a control (for those controls that have a check state)**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked)
 ---@param control control_handle Control handle
 ---@param state string|boolean New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
 function pyui.set_control_checked(control, state) end
 
+---@alias check_stated true | false | "checked" | "unchecked" | "indeterminate"
+
 ---**Sets the checked-state of a control (for those controls that have a check state)**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked)
----@param state string|boolean New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
-function control:set_control_checked(state) end
+---@param state check_stated New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
+function check_box:set_control_checked(state) end
 
+---**Sets the checked-state of a control (for those controls that have a check state)**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked)
+---@param state check_stated New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
+function radio_button:set_control_checked(state) end
 
 
 
@@ -247,30 +252,6 @@ function text_box:set_on_change_handler(func) end
 
 ---**Sets the `on_change` handler for the control.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user changes the selected option of a list box<br>
----The handler is not invoked if the content is changed by the lua script.
----@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return list_box #The `control` handle is returned again
-function list_box:set_on_change_handler(func) end
-
----**Sets the `on_change` handler for the control.**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user types text or changes the selected option in the drop list
----The handler is not invoked if the content is changed by the lua script.
----@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return combo_box #The `control` handle is returned again
-function combo_box:set_on_change_handler(func) end
-
----**Sets the `on_change` handler for the control.**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user changes the selected option of a drop list<br>
----The handler is not invoked if the content is changed by the lua script.
----@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return drop_list #The `control` handle is returned again
-function drop_list:set_on_change_handler(func) end
-
----**Sets the `on_change` handler for the control.**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
 ---Called when the user changes the text in the control.
 ---The handler is not invoked if the content is changed by the lua script.
 ---@param func fun(text:string) A lua function that is invoked for every change event
@@ -279,27 +260,12 @@ function text_spin:set_on_change_handler(func) end
 
 ---**Sets the `on_change` handler for the control.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user changes the selected pen in the drop-list<br>
+---Called when the user changes the selected option of a list box<br>
 ---The handler is not invoked if the content is changed by the lua script.
 ---@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return pen_list #The `control` handle is returned again
-function pen_list:set_on_change_handler(func) end
+---@return control_list #The `control` handle is returned again
+function control_list:set_on_change_handler(func) end
 
----**Sets the `on_change` handler for the control.**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user changes the selected linetype in the drop-list<br>
----The handler is not invoked if the content is changed by the lua script.
----@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return linetype_list #The `control` handle is returned again
-function linetype_list:set_on_change_handler(func) end
-
----**Sets the `on_change` handler for the control.**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)<br>
----Called when the user changes the selected layer in the drop-list<br>
----The handler is not invoked if the content is changed by the lua script.
----@param func fun(text:string, new_index:integer) A lua function that is invoked for every change event
----@return layer_list #The `control` handle is returned again
-function layer_list:set_on_change_handler(func) end
 
 
 
