@@ -4,15 +4,6 @@ pyui = {}
 
 
 
----@class ClickInfo
----@field coos_vp? table  # Normalized viewport coordinates `{u, v}`
----@field ctrl_key boolean
----@field shift_key boolean
----@field alt_key boolean
-
----@alias callback_function fun(info: ClickInfo)
-
-
 ---**Displays a simple message to the user with an OK button to dismiss the message window** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.alert)
 ---@param message string The message to be displayed

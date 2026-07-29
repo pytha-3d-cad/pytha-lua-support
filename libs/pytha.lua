@@ -3,7 +3,6 @@
 -- Define the `pytha` namespace
 pytha = {}
 pyio = {}
-pyux = {}
 pygeo = {}
 pyplot = {}
 pydim = {}
@@ -653,10 +652,10 @@ function pytha.pop_local_coordinates(token) end
 ---**Replaces the active coordinate system with a new local coordinate frame** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.push_local_coordinates)
 ---@param origin table Origin of the local coordinate system
----@param axis table A table that may contain the following options:
----@field u_axis table u-axis of the local coordinate system
----@field v_axis table v-axis of the local coordinate system
----@field w_axis table w-axis of the local coordinate system
+---@param axis table A table that may contain the following options:<br>
+---u_axis: table u-axis of the local coordinate system<br>
+---v_axis: table v-axis of the local coordinate system<br>
+---w_axis: table w-axis of the local coordinate system<br>
 ---@return integer Token that can be passed to `pop_local_coordinates` to ensure that the correct coordinate system is popped
 function pytha.push_local_coordinates(origin, axis) end
 
@@ -813,205 +812,6 @@ function pytha.zoom_element(element, factor, options) end
 
 
 
-
-
----**Events**
----When the user changes the selected option of a drop list, the [on_change handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler) is called `on_change_handler(text, new_index)` with one string argument of the selected text and one integer argument for the index of the newly selected option.
-
-
-
-
----**Events**
----When the user types text or changes the selected option in the drop list, the on_change handler is called `on_change_handler(text, new_index)` with one string argument of the current text and one integer argument for the index of the currently selected option (`nil` if the text does not match any option).
-
-
-
-
----**Events**
----When the user changes the selected linetype in the drop-list, the [on_change handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler) is called `on_change_handler(text, new_index)` with one string argument of the selected linetype and one integer argument for the index of the newly selected linetype.
-
-
-
-
----**Events**
----When the user changes the selected option of a radio button group, (e.g. by clicking on one button), the [on_click handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_click_handler) for the newly selected option is called.
-
-
-
----**Remarks:**
----The length of a list box is calculated from the number of adjacent rows.
----Fine-tuning of the length can be achieved by inserting alignments and empty elements.
-
----**Events:**
----When the user changes the selected option of a list box, the `on_change_handler(text, new_index)` is called
----with one string argument of the selected text and one integer argument for the index of the newly selected option.
-
----**Version requirements:**
----This function is available in V26 and above.
-
-
-
-
----**Note:**
----This handler is specific to the current modal environment / dialog and can only be set within a dialog.
----The parameters to the `on_change` handler differ slightly depending on the control on which it is used.
----
----function on_change_handler(text [, index])
----
----@param text string The new content text
----@param index? integer The newly selected item index if applicable
-function on_change_handler(text, index) end
-
-
-
----**Removes all highlights**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.clear_highlights)
----@param options? table Optional: reserved for future use
----@overload fun()
-function pyux.clear_highlights(options) end
-
-
-
----**Returns the file handle to a `.pyo` in the PYTHA library folder** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.get_library_handle)
----@param lib_type string Must be 'library'. Reserved for future use.
----@param folder? string Optional: Name of a folder in the PYTHA library.
----@param subfolder? string Optional: Name of a subfolder in `folder`
----@return file_handle The first `.pyo` file in the specified folder. `nil` if no `.pyo` file is found at the given location.
----@overload fun(): file_handle
-function pyux.get_library_handle(lib_type, folder, subfolder) end
-
-
-
----**Highlights a coordinate in the scene**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.highlight_coordinate)
----@param coordinate table 3D coordinate to be highlighted
----@param options? table Optional: reserved for future use
----@overload fun()
-function pyux.highlight_coordinate(coordinate, options) end
-
-
-
----**Highlights a single element or a table of elements** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.highlight_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param options? table Optional: reserved for future use
----@overload fun()
-function pyux.highlight_element(element, options) end
-
-
-
----**Highlights a line given by two 3D coordinates in the scene in the color of the decoration pens**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.highlight_line)
----@param coordinate1 table 3D start coordinate of the line
----@param coordinate2 table 3D end coordinate of the line
----@param options? table Optional: a table that may contain the following options:
----| `options.pen` integer The index of the decoration pen. The values can be `1` (default), `2` or `3`.
----| `options.arrow` boolean A boolean that specifies whether the line is drawn with an arrow at its end coordinate: `false` (default) or `true`.
----| `options.tics` boolean A boolean that specifies whether the line is drawn with tic marks similar to a ruler: `false` (default) or `true`.
----| `options.text` string A string to be displayed above the line, intended to indicate the distance between two points. May be 'nil'.
----@overload fun()
-function pyux.highlight_line(coordinate1, coordinate2, options) end
-
-
-
----**Opens the file selector and returns a list of handles to all `.pyo` files in the given folder** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.list_pyos)
----@param folder? file_handle Optional: handle to a directory or file
----@param rebrowse? boolean Optional: open the folder selection dialog also when `folder` is specified
----@return table|nil Table containing file handles to all `.pyo` files in the selected folder. `nil` if selection was cancelled.
----@overload fun(): table|nil
-function pyux.list_pyos(folder, rebrowse) end
-
-
-
----**Allows the interaction of the user with objects in the scene**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.show_cursor_crosshair)
-function pyux.show_cursor_crosshair() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_on_left_click_handler)
-function pyux.set_on_left_click_handler() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_on_right_click_handler)
-function pyux.set_on_right_click_handler() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_on_left_dragstart_handler)
-function pyux.set_on_left_dragstart_handler() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_on_left_dragmove_handler)
-function pyux.set_on_left_dragmove_handler() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_on_left_dragend_handler)
-function pyux.set_on_left_dragend_handler() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_coordinate)
-function pyux.identify_coordinate() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_artificial_coordinate)
-function pyux.identify_artificial_coordinate() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_part)
-function pyux.identify_part() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_plane)
-function pyux.identify_plane() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_coordinate_in_area)
-function pyux.identify_coordinate_in_area() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_distance_along_direction)
-function pyux.identify_distance_along_direction() end
-
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.identify_coordinate_on_plane)
-function pyux.identify_coordinate_on_plane() end
-
-
-
----**Pick a coordinate in the scene** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.select_coordinate)
----@param points_only? boolean `true`: function only returns when an object point was picked. `false`: any coordinate can be picked (default)
----@param text? string Text that will be displayed in the input prompt during the selection
----@param options? table Optional: reserved for future use
----@return table|nil {x,y,z} Coordinate of the picked point. `nil` if operation was cancelled.
----@overload fun(): table|nil
-function pyux.select_coordinate(points_only, text, options) end
-
-
-
----Opens the material selector and returns a handle to a material.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.select_material)
----@param old_material? material_handle Optional: handle to a material
----@return material_handle The new material handle
----@overload fun(): material_handle
-function pyux.select_material(old_material) end
-
-
-
----**Allows the user to select one or multiple parts in the scene**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.select_part)
----@param allow_multi_selection boolean `false`: a single part can be selected. `true`: multiple parts can be selected
----@param text? string Text that will be displayed in the input prompt during the selection
----@param options? table Optional: reserved for future use
----@return table|nil A table containing the element handles of the selected parts or nil if operation was cancelled
----@overload fun(): table|nil
-function pyux.select_part(allow_multi_selection, text, options) end
-
-
-
----**Opens the file selector and returns a handle to a `.pyo` file** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.select_pyo)
----@param old_file? file_handle Optional: handle to a `.pyo` file
----@return file_handle The new file handle. `nil` if selection was cancelled.
----@overload fun(): file_handle
-function pyux.select_pyo(old_file) end
-
-
-
--- =====================================================================
--- pytha.* (additions)
--- =====================================================================
-
-
 ---**Analyzes the edges of a part and returns them as one or more polyline chains**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.analyze_polyline)
 ---Inverse operation to `create_polyline`. Each chain entry has the form `{type, points}` where
@@ -1020,6 +820,7 @@ function pyux.select_pyo(old_file) end
 ---@param element element_handle Element handle of a part whose edges shall be analyzed
 ---@return polyline_chain[] chains A table of chains, each `{type, points}`
 function pytha.analyze_polyline(element) end
+
 
 
 
@@ -1543,11 +1344,6 @@ function pyplot.insert_text(sheet, text, options) end
 
 
 
--- =====================================================================
--- pyloc (function, not a namespace) — Marks a string as translatable
--- =====================================================================
-
-
 ---**Marks a string as translatable / fetches the translated string**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyloc)
 ---The parameter must be a **literal string** (written with quotation marks in the source file) so that
@@ -1558,56 +1354,6 @@ function pyplot.insert_text(sheet, text, options) end
 ---@overload fun(translatable_string: string, original_string: string): string
 ---@overload fun(translatable_string: string, translation_id: integer): string
 function pyloc(translatable_string) end
-
-
-
-
--- =====================================================================
--- pyux.* (additions)
--- =====================================================================
-
-
----**Returns a material element handle for a material with the given name from a material file**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.get_material)
----If multiple loaded materials share the same name, only a material whose stored material path
----matches the given material file is returned.
----@param material_file_handle directory_handle Handle to a material file (`.pymat`)
----@param material_name string Name of the material inside the material file
----@return material_handle|nil material Element handle of the material, or `nil` if not found
-function pyux.get_material(material_file_handle, material_name) end
-
-
-
----**Lists all materials from a material file and returns them as material element handles**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.list_materials)
----The function loads the material file if necessary and returns only those materials whose
----stored material path matches the given material file.
----@param material_file_handle directory_handle Handle to a material file (`.pymat`)
----@return material_handle[] materials Array of element handles of all materials in the material file
-function pyux.list_materials(material_file_handle) end
-
-
-
----**Sets the `timer` handler for timer events in the graphics area**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_timer_handler)
----Specific to the current modal environment / dialog and can only be set within a dialog.
----Passing `nil` will remove the handler and also stop a running timer for the given id.
----Use `pyux.start_timer` to start the timer.
----Callback signature: `function on_timer_handler(info)` where `info` is `{timer_id, tick}`.
----Available from V26.
----@param func fun(info: {timer_id: integer, tick: integer})|nil A Lua function invoked on timer events. `nil` removes the handler
----@param id? integer Optional timer id (default `0`)
-function pyux.set_timer_handler(func, id) end
-
-
-
----**Starts a timer that periodically triggers the `timer` event**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_timer)
----The timer runs until it is stopped by removing the handler via `pyux.set_timer_handler(nil, id)`.
----Available from V26.
----@param seconds number Timer interval in seconds. Must be `> 0`
----@param id? integer Optional timer id (default `0`)
-function pyux.start_timer(seconds, id) end
 
 
 
