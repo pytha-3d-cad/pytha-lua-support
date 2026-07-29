@@ -9,9 +9,11 @@
 ---@field [2] last
 
 ---A Handle to a dialogue
----@class dialog_handle
+---@class dialog_handle: userdata
 local dialog = {}
 
+---The column index or span, describing the placement of the control item.
+---@alias col_spec integer | span
 
 
 ---**Change the text displayed as the window caption of the dialog** 
@@ -61,14 +63,20 @@ function dialog:create_align(col_spec) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
+---See also
+---[`create_ok_button`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_ok_button),
+---[`create_cancel_button`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_cancel_button)
 function pyui.create_button(dialog, col_spec, text) end
 
 ---**Create a button that the user can press**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_button)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
+---See also
+---[`create_ok_button`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_ok_button),
+---[`create_cancel_button`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_cancel_button)
 function dialog:create_button(col_spec, text) end
 
 
@@ -79,14 +87,14 @@ function dialog:create_button(col_spec, text) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return check_box #A handle to the newly created control
 function pyui.create_check_box(dialog, col_spec, text) end
 
 ---**Create a check box for the user to select an option (yes or no)** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/dialog.create_check_box)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return check_box #A handle to the newly created control
 function dialog:create_check_box(col_spec, text) end
 
 
@@ -100,7 +108,9 @@ function dialog:create_check_box(col_spec, text) end
 ---@param text? string Initial text-content of the control
 ---@param options? label_options Optional: a table that may contain the following options:
 --- - `align`: Optional alignment of the text `"left"`, `"center"` or `"right"`
----@return control_handle #A handle to the newly created control
+---@return label #A handle to the newly created control
+---See also
+---[`create_standalone_label`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_standalone_label)
 function pyui.create_label(dialog, col_spec, text, options) end
 
 ---**Create a label or static text** 
@@ -109,7 +119,9 @@ function pyui.create_label(dialog, col_spec, text, options) end
 ---@param text? string Initial text-content of the control
 ---@param options? label_options Optional: a table that may contain the following options:
 --- - `align`: Optional alignment of the text `"left"`, `"center"` or `"right"`
----@return control_handle #A handle to the newly created control
+---@return label #A handle to the newly created control
+---See also
+---[`create_standalone_label`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_standalone_label)
 function dialog:create_label(col_spec, text, options) end
 
 
@@ -122,7 +134,9 @@ function dialog:create_label(col_spec, text, options) end
 ---@param text? string Initial text-content of the control
 ---@param options? label_options Optional: a table that may contain the following options:
 --- - `align`: Optional alignment of the text `"left"`, `"center"` or `"right"`
----@return control_handle #A handle to the newly created control
+---@return label #A handle to the newly created control
+---See also
+---[`create_label`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_label),
 function pyui.create_standalone_label(dialog, col_spec, text, options) end
 
 ---**Create a label or static text that is not related to the next control** 
@@ -131,7 +145,9 @@ function pyui.create_standalone_label(dialog, col_spec, text, options) end
 ---@param text? string Initial text-content of the control
 ---@param options? label_options Optional: a table that may contain the following options:
 --- - `align`: Optional alignment of the text `"left"`, `"center"` or `"right"`
----@return control_handle #A handle to the newly created control
+---@return label #A handle to the newly created control
+---See also
+---[`create_label`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_label),
 function dialog:create_standalone_label(col_spec, text, options) end
 
 
@@ -142,14 +158,14 @@ function dialog:create_standalone_label(col_spec, text, options) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text content of the control
----@return control_handle #A handle to the newly created control
+---@return combo_box #A handle to the newly created control
 function pyui.create_combo_box(dialog, col_spec, text) end
 
 ---**Create a combo box where the user can either select a predefined option from a list or enter a custom text** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_combo_box)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text content of the control
----@return control_handle #A handle to the newly created control
+---@return combo_box #A handle to the newly created control
 function dialog:create_combo_box(col_spec, text) end
 
 
@@ -158,13 +174,13 @@ function dialog:create_combo_box(col_spec, text) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_drop_list)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return drop_list #A handle to the newly created control
 function pyui.create_drop_list(dialog, col_spec) end
 
 ---**Create a drop-down list for the user to select one of multiple options**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_drop_list)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return drop_list #A handle to the newly created control
 function dialog:create_drop_list(col_spec) end
 
 
@@ -186,38 +202,80 @@ function dialog:create_empty(col_spec) end
 
 
 
----**Create a foldable group box to present related controls under a common caption** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box)
----@param dialog dialog_handle Dialog where the control is created
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function pyui.create_foldable_group_box(dialog, col_spec, text) end
-
----**Create a foldable group box to present related controls under a common caption** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box)
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function dialog:create_foldable_group_box(col_spec, text) end
-
-
-
-
 ---**Create a group box to present related controls under a common caption** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_foldable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box),
+---[`create_scrollable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
 function pyui.create_group_box(dialog, col_spec, text) end
 
 ---**Create a group box to present related controls under a common caption** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_foldable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box),
+---[`create_scrollable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
 function dialog:create_group_box(dialog, col_spec, text) end
+
+
+
+
+---**Create a foldable group box to present related controls under a common caption** 
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box)
+---@param dialog dialog_handle Dialog where the control is created
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Optional: Initial text-content of the control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box),
+---[`create_scrollable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
+function pyui.create_foldable_group_box(dialog, col_spec, text) end
+
+---**Create a foldable group box to present related controls under a common caption** 
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box)
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Optional: Initial text-content of the control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box),
+---[`create_scrollable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
+function dialog:create_foldable_group_box(col_spec, text) end
+
+
+
+
+---**Create a scrollable group box to present related controls under a common caption.**
+---This type of control is useful to present a list of controls that would be too long to display on the screen.
+---Every scrollable group box must be closed with a call to `end_group_box`.
+---All controls created between `create_scrollable_group_box` and `end_group_box` are placed inside the group.
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
+---@param dialog dialog_handle Dialog where the control is created
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Initial text-content of the control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box),
+---[`create_foldable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box),
+function pyui.create_scrollable_group_box(dialog, col_spec, text) end
+
+---**Create a scrollable group box to present related controls under a common caption.**
+---This type of control is useful to present a list of controls that would be too long to display on the screen.
+---Every scrollable group box must be closed with a call to `end_group_box`.
+---All controls created between `create_scrollable_group_box` and `end_group_box` are placed inside the group.
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Initial text-content of the control
+---@return group_box #A handle to the newly created control
+---See also
+---[`create_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_group_box),
+---[`create_foldable_group_box`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_foldable_group_box),
+function dialog:create_scrollable_group_box(col_spec, text) end
 
 
 
@@ -240,13 +298,13 @@ function dialog:end_group_box() end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_layer_list)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return layer_list #A handle to the newly created control
 function pyui.create_layer_list(dialog, col_spec) end
 
 ---**Create a drop-down list for the user to select a layer. This list cannot be modified.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_layer_list)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return layer_list #A handle to the newly created control
 function dialog:create_layer_list(col_spec) end
 
 
@@ -256,14 +314,33 @@ function dialog:create_layer_list(col_spec) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_linetype_list)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return linetype_list #A handle to the newly created control
 function pyui.create_linetype_list(dialog, col_spec) end
 
 ---**Create a drop-down list for the user to select a linetype. This list cannot be modified.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_linetype_list)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return linetype_list #A handle to the newly created control
 function dialog:create_linetype_list(col_spec) end
+
+
+
+
+---**Create a radio button for the user to select one of multiple options** 
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_radio_button)
+---@param dialog dialog_handle Dialog where the control is created
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Optional: Initial text-content of the control
+---@return radio_button #A handle to the newly created control
+function pyui.create_radio_button(dialog, col_spec, text) end
+
+---**Create a radio button for the user to select one of multiple options** 
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_radio_button)
+---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
+---@param text? string Optional: Initial text-content of the control
+---@return radio_button #A handle to the newly created control
+function dialog:create_radio_button(col_spec, text) end
+
 
 
 
@@ -274,7 +351,7 @@ function dialog:create_linetype_list(col_spec) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return radio_button #A handle to the newly created control
 function pyui.create_linked_radio_button(dialog, col_spec, text) end
 
 ---**Create a radio button for the user to select one of multiple options.** 
@@ -283,7 +360,7 @@ function pyui.create_linked_radio_button(dialog, col_spec, text) end
 ---Use the [set_control_checked](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked) function to initialize the radio button state.
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return radio_button #A handle to the newly created control
 function dialog:create_linked_radio_button(col_spec, text) end
 
 
@@ -296,7 +373,7 @@ function dialog:create_linked_radio_button(col_spec, text) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_list_box)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return list_box #A handle to the newly created control
 function pyui.create_list_box(dialog, col_spec) end
 
 ---**Create a list box for the user to select one of multiple options.**
@@ -305,7 +382,7 @@ function pyui.create_list_box(dialog, col_spec) end
 ---Note that radio buttons and drop lists are another way to present multiple options to the user.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_list_box)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return list_box #A handle to the newly created control
 function dialog.create_list_box(col_spec) end
 
 
@@ -316,14 +393,14 @@ function dialog.create_list_box(col_spec) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Should be left out to get a consistent translation of "Ok"
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
 function pyui.create_ok_button(dialog, col_spec, text) end
 
 ---**Create the Ok button** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_ok_button)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Should be left out to get a consistent translation of "Ok"
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
 function dialog:create_ok_button(col_spec, text) end
 
 
@@ -334,14 +411,14 @@ function dialog:create_ok_button(col_spec, text) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Should be left out to get a consistent translation of "Cancel"
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
 function pyui.create_cancel_button(dialog, col_spec, text) end
 
 ---**Create the Cancel button. When the user presses the Cancel button, the plugin is terminated and control returns to PYTHA.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_cancel_button)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Should be left out to get a consistent translation of "Cancel"
----@return control_handle #A handle to the newly created control
+---@return button #A handle to the newly created control
 function dialog:create_cancel_button(col_spec, text) end
 
 
@@ -351,56 +428,14 @@ function dialog:create_cancel_button(col_spec, text) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_pen_list)
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return pen_list #A handle to the newly created control
 function pyui.create_pen_list(dialog, col_spec) end
 
 ---**Create a drop-down list for the user to select a pen. This list cannot be modified.**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/dialog.create_pen_list)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@return control_handle #A handle to the newly created control
+---@return pen_list #A handle to the newly created control
 function dialog:create_pen_list(col_spec) end
-
-
-
-
----**Create a radio button for the user to select one of multiple options** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_radio_button)
----@param dialog dialog_handle Dialog where the control is created
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function pyui.create_radio_button(dialog, col_spec, text) end
-
----**Create a radio button for the user to select one of multiple options** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_radio_button)
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function dialog:create_radio_button(col_spec, text) end
-
-
-
-
----**Create a scrollable group box to present related controls under a common caption.**
----This type of control is useful to present a list of controls that would be too long to display on the screen.
----Every scrollable group box must be closed with a call to `end_group_box`.
----All controls created between `create_scrollable_group_box` and `end_group_box` are placed inside the group.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
----@param dialog dialog_handle Dialog where the control is created
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function pyui.create_scrollable_group_box(dialog, col_spec, text) end
-
----**Create a scrollable group box to present related controls under a common caption.**
----This type of control is useful to present a list of controls that would be too long to display on the screen.
----Every scrollable group box must be closed with a call to `end_group_box`.
----All controls created between `create_scrollable_group_box` and `end_group_box` are placed inside the group.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_scrollable_group_box)
----@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
----@param text? string Initial text-content of the control
----@return control_handle #A handle to the newly created control
-function dialog:create_scrollable_group_box(col_spec, text) end
 
 
 
@@ -410,14 +445,14 @@ function dialog:create_scrollable_group_box(col_spec, text) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_box #A handle to the newly created control
 function pyui.create_text_box(dialog, col_spec, text) end
 
 ---**Create an editable text box or edit control** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_text_box)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_box #A handle to the newly created control
 function dialog:create_text_box(col_spec, text) end
 
 
@@ -428,14 +463,14 @@ function dialog:create_text_box(col_spec, text) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_display #A handle to the newly created control
 function pyui.create_text_display(dialog, col_spec, text) end
 
 ---**Create a read-only text box** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_text_display)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_display #A handle to the newly created control
 function dialog:create_text_display(col_spec, text) end
 
 
@@ -446,14 +481,14 @@ function dialog:create_text_display(col_spec, text) end
 ---@param dialog dialog_handle Dialog where the control is created
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_spin #A handle to the newly created control
 function pyui.create_text_spin(dialog, col_spec, text) end
 
 ---**Create an editable text box or edit control with spin buttons**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/dialog.create_text_spin)
 ---@param col_spec col_spec The Column `index` or `{first, last}`, describing the placement of the Control item
 ---@param text? string Optional: Initial text-content of the control
----@return control_handle #A handle to the newly created control
+---@return text_spin #A handle to the newly created control
 function dialog:create_text_spin(col_spec, text) end
 
 

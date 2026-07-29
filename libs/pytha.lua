@@ -814,16 +814,9 @@ function pytha.zoom_element(element, factor, options) end
 
 
 
----**Clears all items from the list of a combo box or a drop-down list** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.clear_control_items)
----@param control control_handle Control handle
-function control:clear_control_items() end
-
-
 
 ---**Events**
 ---When the user changes the selected option of a drop list, the [on_change handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler) is called `on_change_handler(text, new_index)` with one string argument of the selected text and one integer argument for the index of the newly selected option.
-
 
 
 
@@ -834,18 +827,14 @@ function control:clear_control_items() end
 
 
 
-
 ---**Events**
 ---When the user changes the selected linetype in the drop-list, the [on_change handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler) is called `on_change_handler(text, new_index)` with one string argument of the selected linetype and one integer argument for the index of the newly selected linetype.
 
 
 
 
-
-
 ---**Events**
 ---When the user changes the selected option of a radio button group, (e.g. by clicking on one button), the [on_click handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_click_handler) for the newly selected option is called.
-
 
 
 
@@ -860,103 +849,8 @@ function control:clear_control_items() end
 ---**Version requirements:**
 ---This function is available in V26 and above.
 
----**See also:**
----[Control Gallery](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery), 
----[insert_control_item](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.insert_control_item), 
----[set_control_selection](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_selection), 
----[reset_content](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.reset_content), 
----[set_on_change_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler), 
----[create_drop_list](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_drop_list), 
----[create_radio_button](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_radio_button), 
----[create_align](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_align), 
----[create_empty](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_empty)
 
 
-
-
-function control:create_popup_menu(item_table) end
-
-
-
----**Change the enabled/disabled or active/inactive state of a control** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.enable_control)
----@param enabled? boolean Optional: new enabled-state, default: `true`
-function control:enable_control(enabled) end
-
-
-
----**Inserts a new item into a control that displays items (e.g. combo box or drop list)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.insert_control_item)
----@param text string Text-content of the item
----@param position? integer Optional: 1-based position of the new item. 0 (default) inserts at the end.
-function control:insert_control_item(text, position) end
-
-
-
----**Sets the checked-state of a control (for those controls that have a check state)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked)
----@param state string|boolean New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
-function control:set_control_checked(state) end
-
--- Note: The on_change handler is not invoked when the text is changed programmatically with this function.
-
--- See also:
--- [Control Gallery](pyui-control-gallery)
--- [set_control_text](pyui.set_control_text)
--- [set_control_selection](pyui.set_control_selection)
--- [set_on_click_handler](pyui.set_on_click_handler)
--- [create_check_box](pyui.create_check_box)
--- [create_radio_button](pyui.create_radio_button)
-
-
-
-
-
----**Sets the range of the spin button of an edit control with spin button** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_range)
----@param bound_min? integer Optional: Lower limit of the spin button range
----@param bound_max? integer Optional: Upper limit of the spin button range
-function control:set_control_range(bound_min, bound_max) end
-
-
-
-
-
----**Selects a given item in a control (for those controls that allow item selection)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_selection)
----@param index integer Index of the item to be selected
-function control:set_control_selection(index) end
-
--- Note: The on_change handler is not invoked when the index is changed programmatically with this function.
-
--- See also: [Control Gallery](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-control-gallery), 
--- [insert_control_item](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.insert_control_item), 
--- [set_control_text](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_text), 
--- [set_on_change_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler), 
--- [create_text_box](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_text_box), 
--- [create_label](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_label)
-
-
-
-
-
----**Sets the text of a control (for those controls that display text)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_text)
----@param text string Text-content of the control
-function control:set_control_text(text) end
-
-
-
-
-
-
----**Sets the `on_change` handler for the control.**
----The change event is usually invoked when the user changes the (text-) content of a control.
----The handler is not invoked if the content is changed by the lua script.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)
----@param func function A lua function that is invoked for every change event
----@return control_handle The `control` handle is returned again
-function control:set_on_change_handler(func) end
 
 ---**Note:**
 ---This handler is specific to the current modal environment / dialog and can only be set within a dialog.
@@ -967,53 +861,6 @@ function control:set_on_change_handler(func) end
 ---@param text string The new content text
 ---@param index? integer The newly selected item index if applicable
 function on_change_handler(text, index) end
-
----**Version requirements**
----This function is available in V26 and above.
-
-
-
-
-
----**Sets the `on_click` handler function for controls that support this event.**  
----The click event is usually invoked when the user clicks (presses and releases a pointing device) on the control.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_click_handler)
----@param func function A lua function that is invoked for every change event
----@return control_handle The `control` handle is returned again
-function control:set_on_click_handler(func) end
-
----**Note:**  
----This handler is specific to the current modal environment / dialog and can only be set within a dialog.
----The parameters to the `on_click` handler differ slightly depending on the control on which it is used.
----
----function on_click_handler([state])
----
----@param state? boolean The new state of the control (if applicable)
-
----**Version requirements:**  
----This function is available in V26 and above.
-
----**See also:**  
----[Control Gallery](pyui-control-gallery), [set_on_change_handler](pyui.set_on_change_handler), [create_button](pyui.create_button), [create_check_box](pyui.create_check_box), [create_radio_button](pyui.create_radio_button)
-
-
-
-
----**Change the visibility of a control (hide and show)** 
----Note that a hidden control still takes space in the dialog layout.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.show_control)
----@param visibility? boolean Optional: new visibility, default: `true`
-function control:show_control(visibility) end
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1157,106 +1004,6 @@ function pyux.select_part(allow_multi_selection, text, options) end
 ---@return file_handle The new file handle. `nil` if selection was cancelled.
 ---@overload fun(): file_handle
 function pyux.select_pyo(old_file) end
-
-
-
----**Callback**
----The parameters to the handler function are as follows:
----@param info table A table containing the following key-value pairs:
----`info.coos_vp` `{u, v}`: Normalized viewport coordinates of the mouse cursor. Can be `nil`.
----`info.ctrl_key` `boolean`: Status of the virtual CTRL key.
----`info.shift_key` `boolean`: Status of the virtual SHIFT key.
----`info.alt_key` `boolean`: Status of the virtual ALT key.
-function on_click_handler(info) end
-
----**Note:**
----This handler is specific to the current modal environment / dialog and can only be set within a dialog.
----In order to retrieve `on_left_dragmove` and `on_left_dragend` events, the `on_left_dragstart` handler has to be set.
-
----**Version requirements**
----This function is available in V26 and above.
-
----**See also**
----[Control Gallery](pyui-control-gallery), [set_on_left_dragstart_handler](pyux.set_on_left_dragstart_handler), [set_on_left_dragmove_handler](pyux.set_on_left_dragmove_handler), [set_on_left_click_handler](pyux.set_on_left_click_handler), [set_on_right_click_handler](pyux.set_on_right_click_handler), [show_cursor_crosshair](pyux.show_cursor_crosshair)
-
-
-
-
-
----**Callback: The parameters to the handler function are as follows:**
----@param info table A table containing the following key-value pairs:
---- - `info.coos_vp`: `{u, v}` Normalized viewport coordinates of the mouse cursor. Can be `nil`.
---- - `info.ctrl_key`: `boolean` Status of the virtual CTRL key.
---- - `info.shift_key`: `boolean` Status of the virtual SHIFT key.
---- - `info.alt_key`: `boolean` Status of the virtual ALT key.
-function on_click_handler(info) end
-
----**Note:**
----This handler is specific to the current modal environment / dialog and can only be set within a dialog.
----In order to retrieve `on_left_dragmove` and `on_left_dragend` events, the `on_left_dragstart` handler has to be set.
-
----**Version requirements:**
----This function is available in V26 and above.
-
----**See also:**
---- - [Control Gallery](pyui-control-gallery)
---- - [set_on_left_dragstart_handler](pyux.set_on_left_dragstart_handler)
---- - [set_on_left_dragend_handler](pyux.set_on_left_dragend_handler)
---- - [set_on_left_click_handler](pyux.set_on_left_click_handler)
---- - [set_on_right_click_handler](pyux.set_on_right_click_handler)
---- - [show_cursor_crosshair](pyux.show_cursor_crosshair)
-
-
-
-
-
----**Callback**
----The parameters to the handler function are as follows:
----@param info table A table containing the following key-value pairs:
---- - `info.coos_vp`: `{u, v}` Normalized viewport coordinates of the mouse cursor. Can be `nil`.
---- - `info.ctrl_key`: `boolean` Status of the virtual CTRL key.
---- - `info.shift_key`: `boolean` Status of the virtual SHIFT key.
---- - `info.alt_key`: `boolean` Status of the virtual ALT key.
-function on_click_handler(info) end
-
----**Note:**
----This handler is specific to the current modal environment / dialog and can only be set within a dialog.
----In order to retrieve `on_left_dragmove` and `on_left_dragend` events, the `on_left_dragstart` handler has to be set.
-
----**Version requirements**
----This function is available in V26 and above.
-
----**See also**
---- - [Control Gallery](pyui-control-gallery)
---- - [set_on_left_dragmove_handler](pyux.set_on_left_dragmove_handler)
---- - [set_on_left_dragend_handler](pyux.set_on_left_dragend_handler)
---- - [set_on_left_click_handler](pyux.set_on_left_click_handler)
---- - [set_on_right_click_handler](pyux.set_on_right_click_handler)
---- - [show_cursor_crosshair](pyux.show_cursor_crosshair)
-
-
-
-
-
-
-
--- Note: The cross hairs and snapping circle are recommended when mouse interaction in the graphics area is possible.
-
--- Version requirements: This function is available in V26 and above.
-
--- See also: 
--- [Control Gallery](pyui-control-gallery)
--- [set_on_left_click_handler](pyux.set_on_left_click_handler)
--- [set_on_right_click_handler](pyux.set_on_right_click_handler)
--- [set_on_left_dragstart_handler](pyux.set_on_left_dragstart_handler)
--- [set_on_left_dragmove_handler](pyux.set_on_left_dragmove_handler)
--- [set_on_left_dragend_handler](pyux.set_on_left_dragend_handler)
--- [set_on_left_click_handler](pyux.set_on_left_click_handler)
--- [set_on_right_click_handler](pyux.set_on_right_click_handler)
-
-
-
-
 
 
 

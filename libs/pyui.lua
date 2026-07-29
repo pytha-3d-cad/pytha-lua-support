@@ -3,16 +3,6 @@ pyui = {}
 
 
 
----@class control_handle
-local control = {}
-
-
-
-
-
----The column index or span, describing the placement of the control item.
----@alias col_spec integer | span
-
 
 ---@class ClickInfo
 ---@field coos_vp? table  # Normalized viewport coordinates `{u, v}`
@@ -35,29 +25,7 @@ function pyui.alert(message) end
 function pyui.beep() end
 
 
----**Clears all items from the list of a combo box or a drop-down list** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.clear_control_items)
----@param control control_handle Control handle
-function pyui.clear_control_items(control) end
 
-
----**Create a popup menu for the user to select one of multiple options**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.create_popup_menu)
----@param control control_handle|nil Specifies the control below which the popup is created. `nil` will attach the popup to the mouse cursor.
----@param item_table table A table containing the list of popup menu items.
----Each popup menu `item` is represented by a table with the following options:
----`item.text`: string - Name of the popup menu item. An empty string will create a menu separator and ignore the following options.
----`item.submenu`: table - A table containing the list of submenu items. It has the same structure as `item_table`.
----`options.handler`: function - A lua function that is invoked when clicking the item.
----Version requirements: This function is available in V26 and above.
-function pyui.create_popup_menu(control, item_table) end
-
-
----**Change the enabled/disabled or active/inactive state of a control** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.enable_control)
----@param control control_handle Control handle
----@param enabled? boolean Optional: new enabled-state, default: `true`
-function pyui.enable_control(control, enabled) end
 
 
 ---**Formats a numeric value to a string. This function is preferentially useful to display length values.**
@@ -65,6 +33,8 @@ function pyui.enable_control(control, enabled) end
 ---@param number number Numeric value to be formatted
 ---@return string The formatted string
 function pyui.format_length(number) end
+
+
 
 
 ---**Formats a numeric value to a string**
@@ -75,12 +45,6 @@ function pyui.format_length(number) end
 function pyui.format_number(number, decimals) end
 
 
----**Inserts a new item into a control that displays items (e.g. combo box or drop list)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.insert_control_item)
----@param control control_handle Control handle
----@param text string Text-content of the item
----@param position? integer Optional: 1-based position of the new item. 0 (default) inserts at the end.
-function pyui.insert_control_item(control, text, position) end
 
 
 ---**Parses a string containing one or multiple length values to numbers** 
@@ -98,20 +62,20 @@ function pyui.parse_length(string) end
 ---@return number, number, ... The parsed numbers
 function pyui.parse_number(string) end
 
+---@alias init_func fun(dialog: dialog_handle, ...)
 
 ---**Creates and displays a dialog window to enable user interaction with the plugin** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.run_modal_dialog)
----@param init_func function An initialization function
+---@param init_func init_func An initialization function
 ---@param ... any Arbitrary additional parameters that are passed to the initialization function
 ---@return boolean Success status of the dialog execution
 ---**Note:** The initialization function is invoked as `init_func(dialog, ...)` where `dialog` is a handle for the newly created dialog and `...` are the additional parameters from above.
----@overload fun(dialog: table): boolean
 function pyui.run_modal_dialog(init_func, ...) end
 
 
 ---**Creates and displays a subdialog window to enable user interaction with the plugin** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.run_modal_subdialog)
----@param init_func function An initialization function
+---@param init_func init_func An initialization function
 ---@vararg any Arbitrary additional parameters that are passed to the initialization function
 ---@return string `ok` (default), `cancel` if the dialog has been canceled
 ---**Remarks:**
@@ -120,61 +84,6 @@ function pyui.run_modal_dialog(init_func, ...) end
 ---[[pytha]], [[element handles|pytha Element Handles]], [[pyui.run_modal_dialog]]
 function pyui.run_modal_subdialog(init_func, ...) end
 
-
----**Sets the checked-state of a control (for those controls that have a check state)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_checked)
----@param control control_handle Control handle
----@param state string|boolean New checked state: `true`, `false` or `"checked"`, `"unchecked"`, `"indeterminate"`
-function pyui.set_control_checked(control, state) end
-
-
----**Sets the range of the spin button of an edit control with spin button** 
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_range)
----@param control control_handle Control handle
----@param bound_min? integer Optional: Lower limit of the spin button range
----@param bound_max? integer Optional: Upper limit of the spin button range
-function pyui.set_control_range(control, bound_min, bound_max) end
-
-
----**Selects a given item in a control (for those controls that allow item selection)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_selection)
----@param control control_handle Control handle
----@param index integer Index of the item to be selected
-function pyui.set_control_selection(control, index) end
-
-
----**Sets the text of a control (for those controls that display text)**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_control_text)
----@param control control_handle Control handle
----@param text string Text-content of the control
-function pyui.set_control_text(control, text) end
-
-
----**Sets the `on_change` handler for controls that support it.** 
----The change event is usually invoked when the user changes the (text-) content of a control. 
----The handler is not invoked if the content is changed by the lua script.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_change_handler)
----@param control control_handle A control handle returned by one of the `pyui.create_xxx` control creation functions
----@param func function A lua function that is invoked for every change event
----@return control_handle The `control` handle is returned again
-function pyui.set_on_change_handler(control, func) end
-
-
----**Sets the `on_click` handler function for controls that support this event.**  
----The click event is usually invoked when the user clicks (presses and releases a pointing device) on the control.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.set_on_click_handler)
----@param control control_handle A control handle returned by one of the `pyui.create_xxx` control creation functions
----@param func function A lua function that is invoked for every change event
----@return control_handle The `control` handle is returned again
-function pyui.set_on_click_handler(control, func) end
-
-
----**Change the visibility of a control (hide and show)** 
----Note that a hidden control still takes space in the dialog layout.
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.show_control)
----@param control control_handle Control handle
----@param visibility? boolean Optional: new visibility, default: `true`
-function pyui.show_control(control, visibility) end
 
 
 ---**Wait for the specified amount of time** 
@@ -261,12 +170,6 @@ function pyui.end_modal_cancel() end
 ---Specific to the current modal environment / dialog and can only be called within a (sub-) dialog.
 function pyui.end_modal_ok() end
 
-
----**Deprecated alias for `pyui.clear_control_items`**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui.reset_content)
----@deprecated Use `pyui.clear_control_items` instead.
----@param control control_handle The control whose items shall be cleared
-function pyui.reset_content(control) end
 
 
 ---**Starts dragging with the left mouse button in the graphics area** 
