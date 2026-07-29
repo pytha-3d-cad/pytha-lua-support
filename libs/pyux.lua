@@ -1,4 +1,3 @@
----@meta pyux
 pyux = {}
 
 ---Normalized viewport coordinates `{u, v}`
@@ -224,24 +223,58 @@ function pyux.select_pyo(old_file) end
 ---Otherwise, the folder selection dialog will open.
 function pyux.list_pyos(folder, rebrowse) end
 
+---@class timer_token : integer
 
 ---**Sets the `timer` handler for timer events in the graphics area**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_timer_handler)
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_timer_handler)<br>
 ---Specific to the current modal environment / dialog and can only be set within a dialog.
 ---Passing `nil` will remove the handler and also stop a running timer for the given id.
 ---Use `pyux.start_timer` to start the timer.
 ---Callback signature: `function on_timer_handler(info)` where `info` is `{timer_id, tick}`.
 ---Available from V26.
 ---@param func fun(info: {timer_id: integer, tick: integer})|nil A Lua function invoked on timer events. `nil` removes the handler
----@param id? integer Optional timer id (default `0`)
-function pyux.set_timer_handler(func, id) end
-
+---@param timer? timer_token Optional timer id (default `0`)
+---@return timer_token #A value that should be passed to [pyux.start_timer](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_timer) to identify the timer
+function pyux.set_timer_handler(func, timer) end
 
 
 ---**Starts a timer that periodically triggers the `timer` event**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_timer)
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_timer)<br>
 ---The timer runs until it is stopped by removing the handler via `pyux.set_timer_handler(nil, id)`.
 ---Available from V26.
 ---@param seconds number Timer interval in seconds. Must be `> 0`
----@param id? integer Optional timer id (default `0`)
-function pyux.start_timer(seconds, id) end
+---@param timer? timer_token Identifier of the timer that was returned by [set_timer_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_timer_handler)
+function pyux.start_timer(seconds, timer) end
+
+
+---**Stops a periodic timer.**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.stop_timer)<br>
+---@param timer timer_token Identifier of the timer that was returned by [set_timer_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_timer_handler)
+function pyux.stop_timer(timer) end
+
+
+---**Sets up a handler to a fluid animations in 3D space.**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_animation_handler)<br>
+---Use [pyux.start_animation](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_animation) to actually start the animation
+---@param func fun(seconds: number) A lua function that is invoked when the timer event occurs. nil will remove the handler.
+--- - `seconds:` Elapsed time since `pyux.start_animation` in seconds
+function pyux.set_animation_handler(func) end
+
+---**Starts an animation.**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.start_animation)<br>
+---A handler function must have been set up using [pyux.set_animation_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_animation_handler), otherwise an error is raised.
+function pyux.start_animation() end
+
+
+---**Stops an animation.**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.stop_animation)<br>
+---The animation must have been set up using [pyux.set_animation_handler](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.set_animation_handler).
+function pyux.stop_animation() end
+
+
+--[[
+--not yet implemented
+function pyux.set_on_arrow_right_handler() end
+function pyux.set_on_arrow_up_handler() end
+function pyux.set_on_arrow_down_handler() end
+]]
