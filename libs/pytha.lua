@@ -22,8 +22,6 @@
 --- - [pyui](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui)
 pytha = {}
 
-pygeo = {}
-pyplot = {}
 pydim = {}
 
 
@@ -45,8 +43,9 @@ pydim = {}
 
 ---@class element_handle
 ---@class section_handle : element_handle
----@class plot_sheet_handle : element_handle
----@class plot_detail_handle : element_handle
+
+local element_handle = {}
+
 
 ---@class dimension_point A dimension point `{ {x,y,z} [, element] }` where:
 ---@field [1] table Coordinate `{x, y, z}` of an existing part point or reference point
@@ -63,7 +62,7 @@ pydim = {}
 
 ---@class polyline_chain
 ---@field [1] "open"|"closed" Whether the chain is closed (also accessible as `type`)
----@field [2] table Coordinates of the chain points `{{x,y,z}, ...}` (also accessible as `points`)
+---@field [2] Point[] Coordinates of the chain points `{{x,y,z}, ...}` (also accessible as `points`)
 ---@field [3]? polyline_segment[] Segment specifications (only in `_ex` variants)
 
 ---@class xml_document
@@ -83,8 +82,14 @@ pydim = {}
 ---@alias keep_in_or_out "inside" | "outside"
 ---@alias e_handle_or_table (element_handle | element_handle[])
 
+---@class axis_options
+---@field u_axis? axis {x,y,z} Local coordinate u-axis for the orientation of the plane
+---@field v_axis? axis {x,y,z} Local coordinate v-axis for the orientation of the plane
+---@field w_axis? axis {x,y,z} Local coordinate w-axis for the orientation of the plane-normal
 
-local element = {}
+
+---@alias pivot_t "low" | "mid" | "high"
+
 
 
 
@@ -133,7 +138,7 @@ function pytha.copy_element(element, distance, copies) end
 ---@param length number Length of the block (in x-direction)
 ---@param width number Width of the block (in y-direction)
 ---@param height number Height of the block (in z-direction)
----@param origin? table Optional: origin point of the block
+---@param origin? Point Optional: origin point of the block
 ---@param options? table Optional: a table that may contain the following options:
 --- - `u_axis`: Local coordinate u-axis for the orientation of the block
 --- - `v_axis`: Local coordinate v-axis for the orientation of the block
@@ -142,17 +147,20 @@ function pytha.copy_element(element, distance, copies) end
 function pytha.create_block(length, width, height, origin, options) end
 
 
+---@class circle_options : axis_options
+---@field segments? integer number Segments of the circle
+
 
 ---**Creates a face circle in PYTHA as a new face-part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_circle)
 ---@param radius number Radius of the circle
 ---@param origin? Point Optional: center point of the circle
----@param options? table Optional: a table that may contain the following options:
+---@param options? circle_options Optional: a table that may contain the following options:
 ---  - `u_axis`: table Local coordinate u-axis for the orientation of the circle
 ---  - `v_axis`: table Local coordinate v-axis for the orientation of the circle
 ---  - `w_axis`: table Local coordinate w-axis for the orientation of the circle
 ---  - `segments`: number Segments of the circle
----@return userdata An element handle of the newly created part
+---@return element_handle An element handle of the newly created part
 function pytha.create_circle(radius, origin, options) end
 
 
@@ -160,39 +168,41 @@ function pytha.create_circle(radius, origin, options) end
 ---**Creates an edge circle in PYTHA as a new part** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_circle_edges)
 ---@param radius number Radius of the circle
----@param origin? table Optional: center point of the circle
----@param options? table Optional: a table that may contain the following options:
+---@param origin? Point Optional: center point of the circle
+---@param options? circle_options Optional: a table that may contain the following options:
 ---  - `u_axis`: table Local coordinate u-axis for the orientation of the circle
 ---  - `v_axis`: table Local coordinate v-axis for the orientation of the circle
 ---  - `w_axis`: table Local coordinate w-axis for the orientation of the circle
 ---  - `segments`: table Segments of the circle
----@return userdata An element handle of the newly created part
+---@return element_handle #An element handle of the newly created part
 function pytha.create_circle_edges(radius, origin, options) end
 
-
+---@class cylinder_options : circle_options
+---@field height_segments? integer Height sections of the cylinder
+---@field top_radius? number Top radius of the cylinder
 
 ---**Creates a cylinder in PYTHA as a new part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_cylinder)
 ---@param height number Height of the cylinder (in z-direction)
 ---@param radius number Radius of the cylinder
----@param origin? table Optional: origin point of the cylinder
----@param options? table Optional: a table that may contain the following options:
+---@param origin? Point Optional: origin point of the cylinder
+---@param options? cylinder_options Optional: a table that may contain the following options:
 ---  - `u_axis`: {x, y, z} Local coordinate u-axis for the orientation of the cylinder
 ---  - `v_axis`: {x, y, z} Local coordinate v-axis for the orientation of the cylinder
 ---  - `w_axis`: {x, y, z} Local coordinate w-axis for the orientation of the cylinder
 ---  - `segments`: number Circle segments of the cylinder
 ---  - `height_segments`: number Height sections of the cylinder
----  - `top_radius`: number Top radius of the cylinder
----@return userdata An element handle of the newly created part
+---  - `top_radius`: integer Top radius of the cylinder
+---@return element_handle An element handle of the newly created part
 function pytha.create_cylinder(height, radius, origin, options) end
 
 
 
 ---**Creates a new reference point for a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_element_ref_point)
----@param element element_handle|table A single element handle or a table of element handles
----@param coordinate table Coordinate at which the reference point will be created
----@return number The number of reference the last element in the list has assigned
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param coordinate Point Coordinate at which the reference point will be created
+---@return number #The number of the reference the last element in the list has assigned
 function pytha.create_element_ref_point(element, coordinate) end
 
 
@@ -200,8 +210,8 @@ function pytha.create_element_ref_point(element, coordinate) end
 ---**Creates a new group and puts a single element or a table of elements into this group.**
 ---Similar to the `Attributes -> Group` function in the PYTHA user interface.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_group)
----@param element element_handle|table A single element handle or a table of element handles
----@param options? table Optional: a table that may contain the following option:
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param options? {name: string} Optional: a table that may contain the following option:
 ---  - options.name: string - Name of the group to create
 ---@return element_handle An element handle to the newly created group
 function pytha.create_group(element, options) end
@@ -213,10 +223,12 @@ function pytha.create_group(element, options) end
 ---Similar to the `Attributes -> NGO Define` function in the PYTHA user interface.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_ngo)
 ---@param attributes table Table of attributes with the `key` as the [attribute ID](pytha-Attributes) and the `value` as the attribute value
----@return userdata An element handle of the newly created NGO
+---@return element_handle An element handle of the newly created NGO
 function pytha.create_ngo(attributes) end
 
 
+---@class polygon_options : axis_options
+---@field clean_face? "clean" | "dont_clean" eliminates self-intersections from polygon
 
 ---**Creates a polygon face in PYTHA as a new part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polygon)
@@ -224,17 +236,17 @@ function pytha.create_ngo(attributes) end
 ---Similar to the `Faces -> Polygon` function in the PYTHA user interface.
 ---
 ---Note: If the polygon contains holes or if the outline contains arcs, use the [`create_polygon_ex`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polygon_ex) function instead.
----@param points {{u,v [,w]}, ...} Coordinates of the loop points
----@param origin? [number,number,number] # Optional: offset of the whole polygon
----@param options? table Optional: a table that may contain the following options:
----| `options.u_axis` {x,y,z} Local coordinate u-axis for the orientation of the plane
----| `options.v_axis` {x,y,z} Local coordinate v-axis for the orientation of the plane
----| `options.w_axis` {x,y,z} Local coordinate w-axis for the orientation of the plane-normal
----| `options.clean_face` string `"clean"` (default), `"dont_clean"`; eliminates self-intersections from polygon
----@return userdata An element handle of the newly created part
+---@param points Point[] Coordinates of the loop points
+---@param origin? Point # Optional: offset of the whole polygon
+---@param options? polygon_options Optional: a table that may contain the following options:
+--- - `u_axis`: `{x,y,z}` or axis literal - Local coordinate u-axis for the orientation of the plane.
+--- - `v_axis`: `{x,y,z}` or axis literal - Local coordinate u-axis for the orientation of the plane.
+--- - `w_axis`: `{x,y,z}` or axis literal - Local coordinate u-axis for the orientation of the plane.
+--- - `clean_face`:  `"clean"` or `"dont_clean"`; eliminates self-intersections from polygon
+---@return element_handle # An element handle of the newly created part
 function pytha.create_polygon(points, origin, options) end
 
-
+---@class polygon_ex_options : axis_options
 
 --- Similar to the `Faces -> Polygon` function in the PYTHA user interface.
 --- [View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polygon_ex)
@@ -246,8 +258,8 @@ function pytha.create_polygon(points, origin, options) end
 --- - `select_arc`: "small", "large" - For radius specification: selection of the small or large arc with that radius and orientation
 --- - `bulge`: number - Maximum distance between the secant and the arc, positive for counter-clockwise arcs
 --- - `segments`: integer - Number of edge-segments for this polyline-segment
----@param origin? table Optional: offset of the whole polyline {x,y,z}
----@param options? table Optional: a table that may contain the following options:
+---@param origin? Point Optional: offset of the whole polyline {x,y,z}
+---@param options? polygon_ex_options Optional: a table that may contain the following options:
 --- - `u_axis`: {x,y,z} - Local coordinate u-axis for the orientation of the plane
 --- - `v_axis`: {x,y,z} - Local coordinate v-axis for the orientation of the plane
 --- - `w_axis`: {x,y,z} - Local coordinate w-axis for the orientation of the plane-normal
@@ -255,20 +267,20 @@ function pytha.create_polygon(points, origin, options) end
 function pytha.create_polygon_ex(loop_points, loop_segments, origin, options) end
 
 
-
+---@class polyline_options : axis_options
 
 ---**Creates a polyline or chain of edges in PYTHA as new part**
 ---Similar to the `Edges -> Polyline` function in the PYTHA user interface.
 ---Note: If the polyline contains arcs, use the [`create_polyline_ex`](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polyline_ex) function instead.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polyline)
----@param type string `"open"` or `"closed"` indicates whether the polyline is closed.
----@param points table `{{u,v [,w]}, ...}` Coordinates of the points. Note: for a closed polyline, do not supply the initial point twice. Closing is automatic.
----@param origin? table `{x,y,z}` Optional: offset for the whole polyline.
----@param options? table Optional: a table that may contain the following options:
----| `options.u_axis` `{x,y,z}` Local coordinate u-axis for the orientation of the plane.
----| `options.v_axis` `{x,y,z}` Local coordinate v-axis for the orientation of the plane.
----| `options.w_axis` `{x,y,z}` Local coordinate w-axis for the orientation of the plane-normal.
----@return userdata An element handle of the newly created part.
+---@param type "open"|"closed" `"open"` or `"closed"` indicates whether the polyline is closed.
+---@param points Point[] `{{u,v [,w]}, ...}` Coordinates of the points. Note: for a closed polyline, do not supply the initial point twice. Closing is automatic.
+---@param origin? Point `{x,y,z}` Optional: offset for the whole polyline.
+---@param options? polyline_options Optional: a table that may contain the following options:
+--- `u_axis`: `{x,y,z}` Local coordinate u-axis for the orientation of the plane.<br>
+--- `v_axis`: `{x,y,z}` Local coordinate v-axis for the orientation of the plane.<br>
+--- `w_axis`: `{x,y,z}` Local coordinate w-axis for the orientation of the plane-normal.<br>
+---@return element_handle An element handle of the newly created part.
 function pytha.create_polyline(type, points, origin, options) end
 
 
@@ -276,21 +288,21 @@ function pytha.create_polyline(type, points, origin, options) end
 ---**Creates a polyline or a chain of edges** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_polyline_ex)
 ---Similar to the `Edges -> Polyline` function in the PYTHA user interface.
----@param type string `"open"` or `"closed"` indicates whether the polyline is closed
----@param points table `{{u,v [,w]}, ...}` Coordinates of the points
----@param segments? table `{segment_1, segment_2, ...}` Optional: specification of the segments, where each segment may be a table to indicate the following parameters:
+---@param type "open"|"closed" `"open"` or `"closed"` indicates whether the polyline is closed
+---@param points Point[] `{{u,v [,w]}, ...}` Coordinates of the points
+---@param segments? polyline_segment[] `{segment_1, segment_2, ...}` Optional: specification of the segments, where each segment may be a table to indicate the following parameters:
 --- - `segment.angle` number Angle of the arc, positive for counter-clockwise arcs
 --- - `segment.radius` number Radius of the arc (if the radius is given, `orientation` and `select_arc` should be used to specify the arc uniquely)
 --- - `segment.orientation` string `"cw"` or `"ccw"` When `radius` is specified: clockwise or counter-clockwise orientation
 --- - `segment.select_arc` string `"small"`, `"large"` When `radius` is specified: selection of the small or large arc with that radius and orientation
 --- - `segment.bulge` number Maximum distance between the secant and the arc, positive for counter-clockwise arcs
 --- - `segment.normal` table `{x,y,z}` Only relevant for `type = "open"`: Normal direction for the arc
----@param origin? table `{x,y,z}` Optional: offset for the whole polyline
----@param options? table `{...}` Optional: a table that may contain the following options:
+---@param origin? Point `{x,y,z}` Optional: offset for the whole polyline
+---@param options? polyline_options `{...}` Optional: a table that may contain the following options:
 --- - `options.u_axis` table `{x,y,z}` Local coordinate u-axis for the orientation of the plane
 --- - `options.v_axis` table `{x,y,z}` Local coordinate v-axis for the orientation of the plane
 --- - `options.w_axis` table `{x,y,z}` Local coordinate w-axis for the orientation of the plane-normal
----@return userdata An element handle of the newly created part
+---@return element_handle An element handle of the newly created part
 function pytha.create_polyline_ex(type, points, segments, origin, options) end
 
 
@@ -300,21 +312,22 @@ function pytha.create_polyline_ex(type, points, segments, origin, options) end
 ---@param base_part element_handle The face (or faces) in the base part is used as the cross section of the profile
 ---@param height number Height of the profile, perpendicular to the face orientation
 ---@param options? table Optional: reserved for future use.
----@return table A table containing the element handles of the newly created parts (Often it is just one)
+---@return element_handle[] A table containing the element handles of the newly created parts (Often it is just one)
 function pytha.create_profile(base_part, height, options) end
 
 
+---@class rectangle_options: axis_options
 
 ---**Creates a rectangle in PYTHA as new face-part** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_rectangle)
 ---@param length number Length of the rectangle (in u direction)
 ---@param width number Width of the rectangle (in v direction)
----@param origin? table Optional: lower left corner of the rectangle
----@param options? table Optional: a table that may contain the following options:
----  - `u_axis`: table Local coordinate u-axis for the orientation of the plane
----  - `v_axis`: table Local coordinate v-axis for the orientation of the plane
----  - `w_axis`: table Local coordinate w-axis for the orientation of the plane-normal
----@return userdata An element handle of the newly created part
+---@param origin? Point Optional: lower left corner of the rectangle
+---@param options? rectangle_options Optional: a table that may contain the following options:
+---  - `u_axis`: table Local coordinate u-axis for the orientation of the plane<br>
+---  - `v_axis`: table Local coordinate v-axis for the orientation of the plane<br>
+---  - `w_axis`: table Local coordinate w-axis for the orientation of the plane-normal<br>
+---@return element_handle #An element handle of the newly created part
 function pytha.create_rectangle(length, width, origin, options) end
 
 
@@ -323,42 +336,53 @@ function pytha.create_rectangle(length, width, origin, options) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_rectangle_edges)
 ---@param length number Length of the rectangle (in u direction)
 ---@param width number Width of the rectangle (in v direction)
----@param origin? table Optional: lower left corner of the rectangle
----@param options? table Optional: a table that may contain the following options:
----| `u_axis` {x,y,z} Local coordinate u-axis for the orientation of the plane
----| `v_axis` {x,y,z} Local coordinate v-axis for the orientation of the plane
----| `w_axis` {x,y,z} Local coordinate w-axis for the orientation of the plane-normal
----@return userdata An element handle of the newly created part
+---@param origin? Point Optional: lower left corner of the rectangle
+---@param options? rectangle_options Optional: a table that may contain the following options:
+---  - `u_axis`: table Local coordinate u-axis for the orientation of the plane<br>
+---  - `v_axis`: table Local coordinate v-axis for the orientation of the plane<br>
+---  - `w_axis`: table Local coordinate w-axis for the orientation of the plane-normal<br>
+---@return element_handle #An element handle of the newly created part
 function pytha.create_rectangle_edges(length, width, origin, options) end
 
+
+---@class sphere_options : circle_options
+---@field latitude_segments? number
 
 
 ---**Creates a sphere in PYTHA as a new part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_sphere)
 ---@param radius number Radius of the sphere
----@param origin? table Optional: center point of the sphere
----@param options? table Optional: a table that may contain the following options:
----  - `u_axis` `{x,y,z}`: Local coordinate u-axis for the orientation of the sphere
----  - `v_axis` `{x,y,z}`: Local coordinate v-axis for the orientation of the sphere
----  - `w_axis` `{x,y,z}`: Local coordinate w-axis for the orientation of the sphere
----  - `segments` `{x,y,z}`: Longitude segments of the sphere
----  - `latitude_segments` `{x,y,z}`: Latitude segments of the sphere
---- Returns elements from the positive or negative hemisphere depending on `options.type`.
----@return userdata An element handle of the newly created part
+---@param origin? Point Optional: center point of the sphere
+---@param options? sphere_options Optional: a table that may contain the following options:
+---  - `u_axis` `{x,y,z}`: Local coordinate u-axis for the orientation of the sphere<br>
+---  - `v_axis` `{x,y,z}`: Local coordinate v-axis for the orientation of the sphere<br>
+---  - `w_axis` `{x,y,z}`: Local coordinate w-axis for the orientation of the sphere<br>
+---  - `segments` `number`: Longitude segments of the sphere<br>
+---  - `latitude_segments` `number`: Latitude segments of the sphere<br>
+---@return element_handle #An element handle of the newly created part
 function pytha.create_sphere(radius, origin, options) end
 
+---@class sweep_cross_section
+---@field type "rectangle" | "circle" Specifies the shape of the cross section: `"rectangle"` or `"circle"`
+---@field width? number For rectangles: Width
+---@field lenght? number number For rectangles: Length
+---@field radius? number number For circles: Radius
+---@field segments? integer For circles: Optional: Number of segments
 
+---@class sweep_options
+---@field keep_vertical? (0 | 1) Keeps the cross section upright (relative to the z-axis)
+---@field single_parts? (0 | 1) Creates separate parts for each edge of `base_part`
 
 ---**Creates a sweep along a line in PYTHA as a new part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.create_sweep)
 ---@param base_part element_handle The face (or faces) in the base part is used as the cross section of the profile
----@param cross_section element_handle|table Either an element handle to a face-part or a table specifying the cross section:
+---@param cross_section element_handle|sweep_cross_section Either an element handle to a face-part or a table specifying the cross section:
 --- - `type`: string Specifies the shape of the cross section: `"rectangle"` or `"circle"`
 --- - `length`: number For rectangles: Length
 --- - `width`: number For rectangles: Width
 --- - `radius`: number For circles: Radius
 --- - `segments`: number For circles: Optional: Number of segments
----@param options? table Optional: a table that may contain the following options:
+---@param options? sweep_options Optional: a table that may contain the following options:
 --- - `keep_vertical`: number `0` (default), `1`: Keeps the cross section upright (relative to the z-axis)
 --- - `single_parts`: number `0` (default), `1`: Creates separate parts for each edge of `base_part`
 ---@return element_handle[] #A table containing the element handles of the newly created parts (Often it is just one).
@@ -368,9 +392,9 @@ function pytha.create_sweep(base_part, cross_section, options) end
 
 ---**Cuts a single element or a table of elements at a given plane into two parts**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.cut_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param origin table Coordinates giving the position of the cutting plane
----@param axis table Normal vector of the cutting plane
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param origin Point Coordinates giving the position of the cutting plane
+---@param axis axis Normal vector of the cutting plane
 ---@param options? {type: "keep_both" | "keep_front" | "keep_back"} #Optional: may contain:
 --- - `options.type:` string `"keep_both"` (default), `"keep_front"`, or `"keep_back"`
 ---@return element_handle[] #A table of element handles
@@ -380,16 +404,15 @@ function pytha.cut_element(element, origin, axis, options) end
 
 ---**Deletes a single element or a table of elements**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.delete_element)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 function pytha.delete_element(element) end
 
 
 
 ---**Deletes a reference point for a single element or a table of elements**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.delete_element_ref_point)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param index? integer Optional: Index of the reference point to delete
----@return nil
 ---If `index` is not specified or set to `-1`, all reference points of `element` will be deleted.
 ---Deleting a reference point will shift all higher indices one forward.
 function pytha.delete_element_ref_point(element, index) end
@@ -398,25 +421,34 @@ function pytha.delete_element_ref_point(element, index) end
 
 ---**Dissolves a single group or a table of groups without deleting their members** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.dissolve_group)
----@param group element_handle|table A single element handle or a table of element handles
----@return nil
+---@param group e_handle_or_table A single element handle or a table of element handles
 function pytha.dissolve_group(group) end
 
-
+---@class element_iterator
+---@overload fun(n:number, prev:element_handle?): element_handle?
+local element_iterator = {}
 
 ---**Enumerates all parts in the model** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.enumerate_parts)
 ---This function should be used in a lua `for ... in ... do` loop.
----@return userdata An element handle of each part
+---@return element_iterator #An iterator function over the element handles of each part
+---@return number #iterator parameter
 function pytha.enumerate_parts() end
 
 
 
+---@class extend_options: axis_options
+---@field pivot? (pivot_t)[] giving the orientation of the pivot point. The values can be "mid" (default), "low" or "high".
+---@field u_divisions number|number[] A single value or a table of values giving the division coordinates in the `u`-direction
+---@field v_divisions number|number[] A single value or a table of values giving the division coordinates in the `v`-direction
+---@field w_divisions number|number[] A single value or a table of values giving the division coordinates in the `w`-direction
+
+
 ---**Extends a single element or a table of elements to a given size** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.extend_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param displacement table Table giving the displacement in each direction
----@param options? table Optional: a table that may contain the following options:
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param displacement Vector Table giving the displacement in each direction
+---@param options? extend_options Optional: a table that may contain the following options:
 --- - `u_axis`: Local coordinate u-axis for the extension
 --- - `v_axis`: Local coordinate v-axis for the extension
 --- - `w_axis`: Local coordinate w-axis for the extension
@@ -426,46 +458,49 @@ function pytha.enumerate_parts() end
 --- - `w_divisions`: A single value or a table of values giving the division coordinates in the `w`-direction
 function pytha.extend_element(element, displacement, options) end
 
-
+---@class attribute_ID: integer
 
 ---**Retrieves the predefined list values for an attribute** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_attribute_list_values)
 ---@param attribute attribute_ID The [Attribute ID](pytha-Attributes)
 ---@return table A table containing the list values of the attributes
+---Remarks:
+---The list values can contain comments separated by a semicolon `;`. These comments are not part of the attribute suggestions, e.g. `Attribute Value 1; this is a comment` should be trimmed to `Attribute Value 1` prior to assignment to an element.
 function pytha.get_attribute_list_values(attribute) end
-
--- Remarks:
--- The list values can contain comments separated by a semicolon `;`. These comments are not part of the attribute suggestions, e.g. `Attribute Value 1; this is a comment` should be trimmed to `Attribute Value 1` prior to assignment to an element.
 
 
 
 ---**Retrieves an attribute of an element** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_attribute)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param attribute attribute_ID The Attribute ID
----@return string The value of the attribute of element
+---@return string # The value of the attribute of `element`
 function pytha.get_element_attribute(element, attribute) end
 
-function element:get_element_attribute(attribute) end
+---**Retrieves an attribute of an element** 
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_attribute)
+---@param attribute attribute_ID The Attribute ID
+---@return string # The value of the `attribute` of `element`
+function element_handle:get_element_attribute(attribute) end
 
 
 
 ---**Gets the bounding box coordinates for a single element or a table of elements**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_bounding_box)
----@param element element_handle|table A single element handle or a table of element handles
----@param options? table Optional: a table that may contain the following options:
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param options? axis_options Optional: a table that may contain the following options:
 ---  - options.u_axis: {x, y, z} Local coordinate u-axis for the orientation of the bounding box
 ---  - options.v_axis: {x, y, z} Local coordinate v-axis for the orientation of the bounding box
 ---  - options.w_axis: {x, y, z} Local coordinate w-axis for the orientation of the bounding box
----@return table {{x, y, z}, {x, y, z}} A table with two point coordinates: the minimal x/y/z coordinates and the maximal x/y/z coordinates
+---@return [Point, Point] {{x, y, z}, {x, y, z}} A table with two point coordinates: the minimal x/y/z coordinates and the maximal x/y/z coordinates
 function pytha.get_element_bounding_box(element, options) end
 
 
 
 ---**Gets the smallest group containing all given elements**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_common_group)
----@param elements element_handle|table A single element handle or a table of element handles
----@return userdata|nil common_group An element handle of the group. `nil` if no such group exists.
+---@param elements e_handle_or_table A single element handle or a table of element handles
+---@return element_handle|nil common_group An element handle of the group. `nil` if no such group exists.
 ---`common_group` may well be included in `elements`, as this allows to find the topmost group of e.g. an imported pyo.
 function pytha.get_element_common_group(elements) end
 
@@ -473,27 +508,33 @@ function pytha.get_element_common_group(elements) end
 
 ---**Gets the history information from an element. The history information must have been set with [set_element_history](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_history).**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_history)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param id? string The id of the element history to retrive
 ---@return table Table containing the history information
----@return string|nil id supplied to get_element_history or nil if the id is empty
-function pytha.get_element_history(element) end
+---@return string|nil #`id` supplied to `get_element_history` or `nil` if the `id` is empty
+function pytha.get_element_history(element, id) end
 
-function element:get_element_history() end
+---**Gets the history information from an element. The history information must have been set with [set_element_history](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_history).**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_history)
+---@param id? string The id of the element history to retrive
+---@return table Table containing the history information
+---@return string|nil #`id` supplied to `get_element_history` or `nil` if the `id` is empty
+function element_handle:get_element_history(id) end
 
 
 
 ---**Gets the parent group of an element** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_parent_group)
 ---@param element element_handle A single element handle
----@return element_handle The element handle of the parent group. `nil` if the element has no parent group.
+---@return element_handle #The element handle of the parent group. `nil` if the element has no parent group.
 function pytha.get_element_parent_group(element) end
 
 
 
 ---**Gets the reference point coordinates for a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_ref_point_coordinates)
----@param element element_handle|table A single element handle or a table of element handles
----@return table A table of point coordinates
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@return Point[] #A table of point coordinates
 function pytha.get_element_ref_point_coordinates(element) end
 
 
@@ -501,15 +542,15 @@ function pytha.get_element_ref_point_coordinates(element) end
 ---**Gets the name of the element type** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_type)
 ---@param element element_handle Element handle to the element of question
----@return string One of the following values `"part"`, `"group"`, `"ngo"`
+---@return "part" | "group" | "ngo" #One of the following values `"part"`, `"group"`, `"ngo"`
 function pytha.get_element_type(element) end
 
 
 
 ---**Gets the physical volume of a single element or a table of elements in construction units** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_element_volume)
----@param element element_handle|table A single element handle or a table of element handles
----@return number The physical volume of the element
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@return number #The physical volume of the element
 function pytha.get_element_volume(element) end
 
 
@@ -517,7 +558,7 @@ function pytha.get_element_volume(element) end
 ---**Gets all descendants of a group, both parts and groups** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_group_descendants)
 ---@param group element_handle A single element handle to a group
----@return table A table containing the element handles of the descendants of `group`.
+---@return element_handle[] #A table containing the element handles of the descendants of `group`.
 function pytha.get_group_descendants(group) end
 
 
@@ -525,22 +566,8 @@ function pytha.get_group_descendants(group) end
 ---**Gets all members of a group, both parts and groups** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_group_members)
 ---@param group element_handle A single element handle to a group
----@return table A table containing the element handles of the members of `group`.
+---@return element_handle[] #A table containing the element handles of the members of `group`.
 function pytha.get_group_members(group) end
-
-
-
----**Gets the replace properties for a group**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_group_replace_properties)
----@param element element_handle A single element handle to a group
----@return table A table with the following key-value pairs:
---- - `origin_u`: `low`, `mid` or `high` - Orientation of the replacement origin in u-direction: `mid`: (default) center, `low`: left, `high`: right
---- - `origin_v`: `low`, `mid` or `high` - Orientation of the replacement origin in v-direction: `mid`: (default) center, `low`: front, `high`: back
---- - `origin_w`: `low`, `mid` or `high` - Orientation of the replacement origin in w-direction: `mid`: (default) center, `low`: bottom, `high`: top
---- - `zoom_u`: `boolean` - A boolean that specifies whether the group can be stretched in u-direction: `false` (default) or `true`
---- - `zoom_v`: `boolean` - A boolean that specifies whether the group can be stretched in v-direction: `false` (default) or `true`
---- - `zoom_w`: `boolean` - A boolean that specifies whether the group can be stretched in w-direction: `false` (default) or `true`
-function pytha.get_group_replace_properties(element) end
 
 
 
@@ -599,7 +626,7 @@ function pytha.list_user_variables() end
 
 ---**Merges single parts into one part**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.merge_parts)
----@param elements element_handle A single element or a table of elements
+---@param elements e_handle_or_table A single element or a table of elements
 ---@param options? table Optional: a table that may contain the following options:
 ---@return element_handle An element handle of the newly created part
 function pytha.merge_parts(elements, options) end
@@ -608,51 +635,48 @@ function pytha.merge_parts(elements, options) end
 
 ---**Mirrors a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.mirror_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param origin table Coordinates of the center of rotation
----@param axis table Normal vector of the mirror plane
----@return userdata An element handle or table of element handles of the mirrored elements
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param origin Point Coordinates of the center of rotation
+---@param axis axis Normal vector of the mirror plane
+---@return e_handle_or_table # An element handle or table of element handles of the mirrored elements
 function pytha.mirror_element(element, origin, axis) end
 
 
 
 ---**Moves a single element or a table of elements by a given distance** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.move_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param distance table Displacement in x, y, z
----@return nil
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param distance Vector Displacement in x, y, z
 function pytha.move_element(element, distance) end
 
-
+---@class coordinate_token: integer
 
 ---**Deactivates the currently active local coordinate system** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.pop_local_coordinates)
 ---Similar to unchecking `Environment -> Local coo system` in the PYTHA user interface. 
 ---Note: This function does not deactivate the user-specified local coordinate system in PYTHA.
----@param token? integer Optional: The token returned by the matching `push_local_coordinates` call. Alternatively, the number of nested local coordinate systems to be popped, default: 1
+---@param token? coordinate_token Optional: The token returned by the matching `push_local_coordinates` call. Alternatively, the number of nested local coordinate systems to be popped, default: 1
 function pytha.pop_local_coordinates(token) end
-
 
 
 ---**Replaces the active coordinate system with a new local coordinate frame** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.push_local_coordinates)
----@param origin table Origin of the local coordinate system
----@param axis table A table that may contain the following options:<br>
+---@param origin Point Origin of the local coordinate system
+---@param axis axis_options A table that may contain the following options:<br>
 ---u_axis: table u-axis of the local coordinate system<br>
 ---v_axis: table v-axis of the local coordinate system<br>
 ---w_axis: table w-axis of the local coordinate system<br>
----@return integer Token that can be passed to `pop_local_coordinates` to ensure that the correct coordinate system is popped
+---@return coordinate_token #Token that can be passed to `pop_local_coordinates` to ensure that the correct coordinate system is popped
 function pytha.push_local_coordinates(origin, axis) end
 
 
 
 ---Rotates a single element or a table of elements.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.rotate_element)
----@param element element_handle|table A single element handle or a table of element handles
----@param origin table Coordinates of the center of rotation
----@param axis table Axis of the rotation
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param origin Point Coordinates of the center of rotation
+---@param axis axis Axis of the rotation
 ---@param angle number Rotational angle (degree)
----@return nil
 function pytha.rotate_element(element, origin, axis, angle) end
 
 
@@ -671,7 +695,7 @@ function pytha.set_element_attributes(element, attributes) end
 
 ---**Adds a single element or a table of elements to an existing group** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_group)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param group element_handle|nil An element handle to a group or `nil`
 function pytha.set_element_group(element, group) end
 
@@ -679,7 +703,7 @@ function pytha.set_element_group(element, group) end
 
 ---**Assigns history information to a group or part created by the plugin.** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_history)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param history table Table containing the history information
 ---@param id? string Optional: the id to select the relevant edit extension
 function pytha.set_element_history(element, history, id) end
@@ -688,13 +712,13 @@ function pytha.set_element_history(element, history, id) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_history)
 ---@param history table Table containing the history information
 ---@param id? string Optional: the id to select the relevant edit extension
-function element:set_element_history(history, id) end
+function element_handle:set_element_history(history, id) end
 
 
 
 ---**Puts a single element or a table of elements into a layer** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_layer)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param layer integer Layer number. Must be between 1 and 256
 function pytha.set_element_layer(element, layer) end
 
@@ -703,7 +727,7 @@ function pytha.set_element_layer(element, layer) end
 
 ---**Assigns a linetype to a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_linetype)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param linetype number Linetype number. Must be between 0 and 10
 ---Setting the linetype to `0` will assign the currently active linetype.
 ---As groups do not have a linetype property, the function will assign the linetype to all parts descending from that group.
@@ -714,7 +738,7 @@ function pytha.set_element_linetype(element, linetype) end
 ---**Sets the material of a single element or a table of elements** 
 ---Similar to the `Materials-> Assign` function in the PYTHA user interface.
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_material)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param material material_handle Handle to a material. The `material` handle has to be retrieved via [select_material](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.select_material).
 function pytha.set_element_material(element, material) end
 
@@ -722,7 +746,7 @@ function pytha.set_element_material(element, material) end
 
 ---**Assigns a name to a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_name)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element e_handle_or_table A single element handle or a table of element handles
 ---@param name string Name to be assigned
 function pytha.set_element_name(element, name) end
 
@@ -730,18 +754,25 @@ function pytha.set_element_name(element, name) end
 
 ---**Assigns a pen to a single element or a table of elements**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_element_pen)
----@param element element_handle|table A single element handle or a table of element handles
----@param pen number Pen number. Must be between 0 and 128
+---@param element e_handle_or_table A single element handle or a table of element handles
+---@param pen integer Pen number. Must be between 0 and 128
 ---Setting the pen to `0` will assign the currently active pen.
 ---As groups do not have a pen property, the function will assign the pen to all parts descending from that group.
 function pytha.set_element_pen(element, pen) end
 
 
+---@class replace_properties
+---@field origin_u pivot_t Orientation of the replacement origin in u-direction: `low`: left, `mid`: center, `high`: right
+---@field origin_v pivot_t Orientation of the replacement origin in v-direction: `low`: left, `mid`: center, `high`: right
+---@field origin_w pivot_t Orientation of the replacement origin in w-direction: `low`: left, `mid`: center, `high`: right
+---@field zoom_u? boolean A boolean that specifies whether the group can be stretched in u-direction: `false` (default) or `true`
+---@field zoom_v? boolean A boolean that specifies whether the group can be stretched in v-direction: `false` (default) or `true`
+---@field zoom_w? boolean A boolean that specifies whether the group can be stretched in w-direction: `false` (default) or `true`
 
 ---**Sets the replace properties for groups**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_group_replace_properties)
 ---@param element element_handle A single element handle to a group
----@param properties table A table that can contain the following keys:
+---@param properties replace_properties A table that can contain the following keys:
 --- - `origin_u`: `low`, `mid` or `high` - Orientation of the replacement origin in u-direction: `low`: left, `mid`: center, `high`: right
 --- - `origin_v`: `low`, `mid` or `high` - Orientation of the replacement origin in v-direction: `low`: front, `mid`: center, `high`: back
 --- - `origin_w`: `low`, `mid` or `high` - Orientation of the replacement origin in w-direction: `low`: bottom, `mid`: center, `high`: top
@@ -751,6 +782,18 @@ function pytha.set_element_pen(element, pen) end
 function pytha.set_group_replace_properties(element, properties) end
 
 
+---**Gets the replace properties for a group**
+---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.get_group_replace_properties)
+---@param element element_handle A single element handle to a group
+---@return replace_properties #A table with the following key-value pairs:
+--- - `origin_u`: `low`, `mid` or `high` - Orientation of the replacement origin in u-direction: `mid`: (default) center, `low`: left, `high`: right
+--- - `origin_v`: `low`, `mid` or `high` - Orientation of the replacement origin in v-direction: `mid`: (default) center, `low`: front, `high`: back
+--- - `origin_w`: `low`, `mid` or `high` - Orientation of the replacement origin in w-direction: `mid`: (default) center, `low`: bottom, `high`: top
+--- - `zoom_u`: `boolean` - A boolean that specifies whether the group can be stretched in u-direction: `false` (default) or `true`
+--- - `zoom_v`: `boolean` - A boolean that specifies whether the group can be stretched in v-direction: `false` (default) or `true`
+--- - `zoom_w`: `boolean` - A boolean that specifies whether the group can be stretched in w-direction: `false` (default) or `true`
+function pytha.get_group_replace_properties(element) end
+
 
 ---**Sets the value of a line from the PYTHA project header**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_project_header)
@@ -759,20 +802,20 @@ function pytha.set_group_replace_properties(element, properties) end
 function pytha.set_project_header(line, value) end
 
 
-
 ---**Create/set/delete a PYTHA user variable from within the plugin** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.set_user_variable)
 ---@param name string The name of the user variable. The name must be a valid lua identifier.
 ---@param value number|string|nil New value of the variable. `nil` removes the variable.
 function pytha.set_user_variable(name, value) end
 
-
+---@class stretch_options : axis_options
+---@field pivot? (pivot_t|Point|nil)[]
 
 ---**Stretches a single element or a table of elements to a given size**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.stretch_element)
 ---@param element element_handle|table A single element handle or a table of element handles
 ---@param dimensions table Table giving the new dimensions
----@param options? table Optional: a table that may contain the following options:
+---@param options? stretch_options Optional: a table that may contain the following options:
 ---  - `u_axis`: Local coordinate u-axis for the zooming
 ---  - `v_axis`: Local coordinate v-axis for the zooming
 ---  - `w_axis`: Local coordinate w-axis for the zooming
@@ -787,11 +830,11 @@ function pytha.stretch_element(element, dimensions, options) end
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pytha.zoom_element)
 ---@param element element_handle|table A single element handle or a table of element handles
 ---@param factor table Table giving the new dimensions
----@param options? table Optional: a table that may contain the following options:
----| options.u_axis table Local coordinate u-axis for the zooming
----| options.v_axis table Local coordinate v-axis for the zooming
----| options.w_axis table Local coordinate w-axis for the zooming
----| options.pivot table Table giving the orientation of the pivot point. The values can be `"mid"` (default), `"low"`, `"high"` or absolute coordinates.
+---@param options? stretch_options Optional: a table that may contain the following options:
+--- - `u_axis` table Local coordinate u-axis for the zooming
+--- - `v_axis` table Local coordinate v-axis for the zooming
+--- - `w_axis` table Local coordinate w-axis for the zooming
+--- -  `pivot` table Table giving the orientation of the pivot point. The values can be `"mid"` (default), `"low"`, `"high"` or absolute coordinates.
 function pytha.zoom_element(element, factor, options) end
 
 
@@ -980,239 +1023,11 @@ function pytha.set_group_closed(element, properties) end
 function pytha.update_section(section) end
 
 
-
-
-
-
--- =====================================================================
--- pygeo.*
--- =====================================================================
-
-
----**Cleans a single 2D polygon loop and returns the cleaned result as one or more loops**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pygeo.clean_polygon_2d)
----Resolves self-intersections, overlaps and similar invalid configurations in the local `u/v` plane.
----Outer loops are returned counter-clockwise, inner loops clockwise. Arc information is not preserved.
----For multi-loop input with holes, use `pygeo.clean_polygon_2d_ex`.
----Minimum PYTHA version: V26.
----@param points table Input loop points in 2D `{{u,v}, ...}`. Treated as closed
----@return table loops Cleaned result `{{{u,v}, ...}, ...}`
-function pygeo.clean_polygon_2d(points) end
-
-
-
----**Cleans one or more 2D polygon loops and returns the cleaned result as loops**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pygeo.clean_polygon_2d_ex)
----Input format follows the loop structure of `pytha.create_polygon_ex` (point table + optional segment table).
----Arc definitions are segmented internally before cleanup. Returned loops contain only point coordinates.
----Outer loops CCW, inner loops CW. Minimum PYTHA version: V26.
----@param loops table Loops as `{{loop_points_1, loop_segments_1}, {loop_points_2, loop_segments_2}, ...}`
----@return table loops Cleaned result `{{{u,v}, ...}, ...}`
-function pygeo.clean_polygon_2d_ex(loops) end
-
-
-
----**Computes a 2D (constrained) Delaunay triangulation of a set of input points**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pygeo.create_triangulation)
----Operates in the local `u/v` plane. At least three pairwise-distinct points required.
----Constraint edges may reference any pair of points and must not cross each other.
----Triangulation covers the convex hull of the points.
----Minimum PYTHA version: V27.
----@param points table Input points `{{u,v}, ...}`. At least three, pairwise distinct
----@param edges? table Optional constraint edges as pairs of 1-based indices `{{i1,i2}, ...}`
----@return table triangles `{{p1,p2,p3}, ...}` triples of 1-based vertex indices (CCW)
----@return table triangle_edges `{{k1,k2,k3}, ...}` edge index triples; edge `k_j` lies opposite vertex `p_j`
----@return table triangle_neighbours `{{n1,n2,n3}, ...}` 1-based neighbour triangle indices; `n_j` is the neighbour opposite vertex `p_j` (sharing edge `k_j`); `0` means boundary
-function pygeo.create_triangulation(points, edges) end
-
-
-
----**Offsets a polyline chain by a given distance and returns the result as a plain point list**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pygeo.offset_polyline)
----Arc segments in the input are detected automatically using PYTHA's 2D analysis settings.
----Arcs in the offset result are returned as their endpoints only. For arc-preserving offset use `offset_polyline_ex`.
----For closed chains a positive offset moves the contour outward.
----Minimum PYTHA version: V26.
----@param chain polyline_chain Input chain `{type, points}` (as returned by `analyze_polyline`)
----@param offset number Offset distance
----@param corner_type? string `"sharp"` (default), `"rounded"` or `"chamfer"`
----@param corner_angle? number Angle threshold in degrees for corner treatment (default `0`)
----@return table points Offset contour as a flat list of 3D points `{{x,y,z}, ...}`
-function pygeo.offset_polyline(chain, offset, corner_type, corner_angle) end
-
-
-
----**Offsets a polyline chain and returns the result with reconstructed arc segments**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pygeo.offset_polyline_ex)
----Result has the same shape as `analyze_polyline_ex` and is directly compatible with `create_polyline_ex`.
----For closed chains a positive offset moves the contour outward.
----Minimum PYTHA version: V26.
----@param chain polyline_chain Input chain `{type, points}`
----@param offset number Offset distance
----@param corner_type? string `"sharp"` (default), `"rounded"` or `"chamfer"`
----@param corner_angle? number Angle threshold in degrees for corner treatment (default `0`)
----@return polyline_chain chain Offset contour as `{type, points, segments}`
-function pygeo.offset_polyline_ex(chain, offset, corner_type, corner_angle) end
-
-
-
--- =====================================================================
--- pyplot.*
--- =====================================================================
--- Sheet units are mm or inch (depending on plot settings). Origin: lower-left corner.
--- Coordinates inside plotted views/details use the model construction units.
-
-
----**Creates a new plot sheet in the current plot album**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.create_sheet)
----Uses the default plot sheet template. If `name` is given and not empty, the sheet is renamed.
----Minimum PYTHA version: V26.
----@param name? string Optional name of the new sheet
----@return plot_sheet_handle sheet A handle to the created sheet
-function pyplot.create_sheet(name) end
-
-
-
----**Deletes one or more plot details**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.delete_detail)
----If a detail is associated with a plotted section, the related plotted section object is deleted as well.
----Minimum PYTHA version: V26.
----@param detail plot_detail_handle|plot_detail_handle[] One or more plot detail handles
----@return nil
-function pyplot.delete_detail(detail) end
-
-
-
----**Deletes one or more plot sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.delete_sheet)
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] One or more sheet handles to delete
----@return nil
-function pyplot.delete_sheet(sheet) end
-
-
-
----**Imports one or more sheets from a plot template file**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.import_sheet)
----Printer settings are only copied from the template if the current album is empty.
----If a non-empty `name` is given, every imported sheet is renamed to it.
----Minimum PYTHA version: V26.
----@param file file_handle The plot template file that should be imported
----@param name? string Optional: rename all imported sheets to this name
----@return plot_sheet_handle[] sheets Imported sheet handles in import order
-function pyplot.import_sheet(file, name) end
-
-
-
----**Inserts a bar code on one or more plot sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.insert_bar_code)
----If `size` is omitted, the default bar code size from the current plot settings is used.
----The bar code text must not be empty.
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] Target plot sheet handle(s)
----@param text string The text encoded in the bar code
----@param options? table Optional options table:
---- - size: {number, number} Width and height of the bar code on the sheet
---- - position: {number, number} Origin on the plot sheet
---- - angle: number Rotation angle
----@return plot_detail_handle[]|nil details Created bar code detail handles, or `nil` on failure
-function pyplot.insert_bar_code(sheet, text, options) end
-
-
-
----**Inserts one or more plot details on one or more sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.insert_detail)
----If `elements` is omitted, the full model is used. If `scale` is omitted but `view_min`/`view_max`
----are given, the scale is derived from the clipping rectangle and the requested size.
----Default `graphic_flags`: edges, shaded, solid.
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] Target plot sheet handle(s)
----@param options table Options controlling view, placement, clipping, scale and appearance:
---- - view: string `"xy"`, `"xz"`, `"yz"`, `"-xy"`, `"-xz"`, `"-yz"`, `"axo"` or `"persp"`
---- - position: {number, number} Detail center on the sheet
---- - size: {number, number} Detail size on the sheet
---- - angle: number Rotation angle of the detail on the sheet
---- - scale: number Explicit detail scale
---- - view_min: {number, number} Optional lower clipping corner in model view coordinates
---- - view_max: {number, number} Optional upper clipping corner in model view coordinates
---- - tilt: number (axo only) Axonometric tilt angle
---- - rotation: number (axo only) Axonometric rotation angle
---- - center: {number, number, number} (axo/persp only) Center point
---- - eyepoint: {number, number, number} (persp only) Camera position
---- - clip_near: number (persp only) Near clipping distance
---- - aspect_ratio: number (persp only) Width-to-height ratio
---- - aperture: number (persp only) Aperture angle
---- - layer_visible: table<integer,boolean> Layer visibility mapping
---- - graphic_flags: string[] Display flags: `"edges"`, `"solid"`, `"hidden_edges"`, `"hatching"`, `"hatching_islands"`, `"shaded"`, `"material"`, `"shadow"`
----@param elements? element_handle|element_handle[] Optional selection of parts/groups to include
----@return plot_detail_handle[] details Created detail handles
-function pyplot.insert_detail(sheet, options, elements) end
-
-
-
----**Inserts a QR code on one or more plot sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.insert_qr_code)
----If `size` is omitted, the default QR code size from the current plot settings is used.
----The QR code text must not be empty.
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] Target plot sheet handle(s)
----@param text string The text encoded in the QR code
----@param options? table Optional options table:
---- - size: {number, number} Width and height of the QR code on the plot sheet
---- - position: {number, number} Origin on the sheet
---- - angle: number Rotation angle
----@return plot_detail_handle[]|nil details Created QR code detail handles, or `nil` on failure
-function pyplot.insert_qr_code(sheet, text, options) end
-
-
-
----**Inserts one or more plotted section details on one or more sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.insert_section)
----If `scale` is omitted, a fitting scale is computed from the section bounding box and `size`.
----Default `graphic_flags`: edges, shaded, solid.
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] Target plot sheet handle(s)
----@param section section_handle A section handle created with `pytha.create_section`
----@param options? table Optional options table:
---- - position: {number, number} Section detail center on the sheet
---- - size: {number, number} Requested section detail size on the sheet
---- - angle: number Rotation angle of the plotted section on the sheet
---- - scale: number Explicit plot scale
---- - layer_visible: table<integer,boolean> Layer visibility mapping
---- - graphic_flags: string[] Display flags (see `insert_detail`)
----@return plot_detail_handle[] details Created plotted section detail handles
-function pyplot.insert_section(sheet, section, options) end
-
-
-
----**Inserts a text object on one or more plot sheets**
----[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyplot.insert_text)
----If `width` is omitted, the text width is determined automatically from content and font settings.
----Minimum PYTHA version: V26.
----@param sheet plot_sheet_handle|plot_sheet_handle[] Target plot sheet handle(s)
----@param text string The text to insert
----@param options? table Optional text formatting and placement options:
---- - size: number Text height
---- - position: {number, number} Text origin on the sheet
---- - width: number Fixed text width
---- - angle: number Rotation angle of text in degrees
---- - aspect_ratio: number Text width-to-height ratio
---- - orientation: string Horizontal alignment: `"left"`, `"center"` or `"right"`
---- - font: string Font family name
---- - bold: boolean Bold text
---- - italic: boolean Italic text
---- - underline: boolean Underlined text
---- - pen: integer Pen number
----@return plot_detail_handle[]|nil details Created text detail handles, or `nil` on failure
-function pyplot.insert_text(sheet, text, options) end
-
-
-
 ---**Marks a string as translatable / fetches the translated string**
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyloc)
 ---The parameter must be a **literal string** (written with quotation marks in the source file) so that
----it appears in the translation base file. See "Localization and Translation" in the wiki.
----Advanced two-argument variants exist (see `@overload`s) to preserve translations across string edits.
+---it appears in the translation base file. See [Localization and Translation](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyui-Localization-and-Translation) in the wiki.
+---Advanced two-argument variants exist (see [`@overload`s](lua://pyloc)) to preserve translations across string edits.
 ---@param translatable_string string String that might need translation
 ---@return string translated The translated string, or `translatable_string` if no translation exists
 ---@overload fun(translatable_string: string, original_string: string): string
@@ -1304,5 +1119,3 @@ function pydim.create_angular_dimension(point1, point2, point3, point4, options)
 --- - style: table Individual style settings (see `pydim.create_linear_dimension`)
 ---@return element_handle|nil dimension The new dimension, or `nil` if the point or the edge is not found or the perpendicular has length 0
 function pydim.create_perpendicular_dimension(point, edge_point1, edge_point2, options) end
-
-

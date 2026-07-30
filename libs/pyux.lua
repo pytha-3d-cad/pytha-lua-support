@@ -140,7 +140,7 @@ function pyux.highlight_coordinate(coordinate, options) end
 
 ---**Highlights a single element or a table of elements** 
 ---[View documents](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/pyux.highlight_element)
----@param element element_handle|table A single element handle or a table of element handles
+---@param element? element_handle|table A single element handle or a table of element handles
 ---@param options? table Optional: reserved for future use
 function pyux.highlight_element(element, options) end
 

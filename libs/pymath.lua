@@ -9,10 +9,20 @@
 pymath = {}
 
 ---@alias mat number[][]
----@alias tensor mat[]
+---@class tensor: table
+
+---@enum axis_literal
+local axis_e = {
+    [1] = 'x',
+    [2] = 'y',
+    [3] = 'z',
+    [4] = '-x',
+    [5] = '-y',
+    [6] = '-z'
+}
 
 ---A Vector or a string literal representing an axis.
----@alias axis 'x'|'y'|'z'|'-x'|'-y'|'-z'|Vector
+---@alias axis Vector | axis_literal
 
 ---A quaternion `{x, y, z, w}`.
 ---@class quaternion
@@ -20,10 +30,6 @@ pymath = {}
 ---@field [2] number y
 ---@field [3] number z
 ---@field [4] number w
-
-
-
-
 
 
 
