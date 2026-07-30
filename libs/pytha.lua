@@ -27,14 +27,14 @@ pyplot = {}
 pydim = {}
 
 
-
+---a Point
 ---@class Point
----@field [1] number The X Coordinate.
----@field [2] number The Y Coordinate.
----@field [3]? number The Z Coordinate.
+---@field [1] number
+---@field [2]? number
+---@field [3]? number
 
----@class Vector: Point A 3D Vector
----@field [3] number The Z Coordinate.
+---A Vector
+---@class Vector: Point 
 
 ---@class Origin: Point A table with three numbers `{x, y, z}` where:
 ---@class Handle: userdata
