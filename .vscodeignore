@@ -1,6 +1,7 @@
 .vscode/**
 .vscode-test/**
 .vs/**
+.claude/**
 src/**
 scripts/**
 GitHub Converter/**
