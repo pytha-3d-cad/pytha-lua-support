@@ -130,8 +130,48 @@ function registerDebugAdapter(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
         vscode.debug.registerDebugAdapterDescriptorFactory('pytha-lua', factory),
+        vscode.debug.registerDebugConfigurationProvider(
+            'pytha-lua',
+            debugConfigurationProvider,
+            vscode.DebugConfigurationProviderTriggerKind.Dynamic,
+        ),
+        // The same provider is also registered for the initial kind so that `resolve` runs
+        // for a session started from an empty or incomplete launch configuration.
+        vscode.debug.registerDebugConfigurationProvider('pytha-lua', debugConfigurationProvider),
     );
 }
+
+/**
+ * Makes an attach configuration available without a `launch.json`. The dynamic registration
+ * puts "PYTHA Lua (attach)" straight into the Run and Debug dropdown, and `resolve` fills in
+ * a session started from an empty configuration (F5 with no launch.json at all).
+ *
+ * Neither hook sets `host`/`port`: leaving them undefined keeps the adapter factory the
+ * single place where the launch.json > setting > default precedence is applied, so a changed
+ * `pytha-lua.port` still takes effect without touching the configuration.
+ */
+const debugConfigurationProvider: vscode.DebugConfigurationProvider = {
+    provideDebugConfigurations(): vscode.DebugConfiguration[] {
+        return [ATTACH_CONFIGURATION];
+    },
+
+    resolveDebugConfiguration(
+        _folder: vscode.WorkspaceFolder | undefined,
+        config: vscode.DebugConfiguration,
+    ): vscode.ProviderResult<vscode.DebugConfiguration> {
+        if (!config.type) {
+            return { ...ATTACH_CONFIGURATION };
+        }
+        // Only "attach" is supported; a hand-written "launch" would fail in the adapter.
+        return { ...config, request: 'attach' };
+    },
+};
+
+const ATTACH_CONFIGURATION: vscode.DebugConfiguration = {
+    type: 'pytha-lua',
+    request: 'attach',
+    name: 'PYTHA Lua (attach)',
+};
 
 /**
  * Warns when `pyloc()` is called with a non-literal argument.

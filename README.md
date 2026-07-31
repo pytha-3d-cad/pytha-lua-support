@@ -30,9 +30,10 @@ VS Code IntelliSense for the [PYTHA 3D-CAD](https://www.pytha.de) Lua plugin API
 Debug your Lua plugins directly in VS Code while they run inside PYTHA. The debugger
 **attaches** over TCP to a debug server embedded in PYTHA.
 
-**1. Enable it in PYTHA.** Turn on **Enable Lua Debugger** in PYTHA's settings and note the
-**Lua Debugger Port** (default `4711`). The server starts (or restarts on a port change)
-immediately — no PYTHA restart needed.
+**1. Enable it in PYTHA.** In PYTHA's settings, go to the **Developer** page, turn on
+**Enable Lua Debugger** and note the **Lua Debugger Port** (default `4711`). The server
+starts (or restarts on a port change) immediately — no PYTHA restart needed. It listens on
+`localhost` only.
 
 **2. Match the port in VS Code** (only if you changed it from the default):
 
@@ -42,8 +43,12 @@ immediately — no PYTHA restart needed.
 "pytha-lua.host": "127.0.0.1"
 ```
 
-**3. Create a launch configuration.** Open the plugin folder, then add (Run → Add
-Configuration → *PYTHA Lua*, or create `.vscode/launch.json`):
+**3. Debug.** Open the plugin folder and press **F5** — **PYTHA Lua (attach)** is offered
+without any setup. Set breakpoints in the plugin's `.lua` files, then run the plugin in
+PYTHA. Execution stops at your breakpoints.
+
+No `launch.json` is required. If you want one anyway (to pin a port per project, or to keep
+several configurations side by side), add it via Run → Add Configuration → *PYTHA Lua*:
 
 ```json
 {
@@ -56,14 +61,13 @@ Configuration → *PYTHA Lua*, or create `.vscode/launch.json`):
 
 A `port`/`host` set directly in the launch configuration overrides the settings above.
 
-**4. Debug.** Press **F5** to attach, set breakpoints in the plugin's `.lua` files, then run
-the plugin in PYTHA. Execution stops at your breakpoints.
-
 What works:
 
-- **Breakpoints**, including **conditional breakpoints** and **logpoints** (Right-click a
-  breakpoint → *Edit Breakpoint…*).
+- **Breakpoints**, including **conditional breakpoints** and **logpoints** (right-click a
+  breakpoint → *Edit Breakpoint…*). A logpoint writes to the Debug Console instead of
+  stopping, and substitutes expressions in curly braces: `part {i} of {count}`.
 - **Call stack**, and **variables** per frame — locals, upvalues and expandable tables.
+  Values can also be **changed in place** while stopped.
 - **Watch**, **hover** and the **Debug Console** as a Lua REPL evaluated in the selected frame.
 - **Stepping** (over / into / out), continue and pause.
 - **Stop-on-error**: an uncaught Lua error breaks at the throw site with the message shown.
@@ -74,7 +78,11 @@ Notes:
 - Only plugins **started while the debugger is attached** are debugged — attach first, then
   run the plugin.
 - While stopped at a breakpoint the PYTHA window is frozen (this is expected); it resumes on
-  continue/step.
+  continue/step. Logpoints never stop, so they do not freeze PYTHA.
+- Protected (encrypted) plugins cannot be debugged.
+
+A step-by-step guide is also in the wiki:
+[Debugging with VS Code](https://github.com/pytha-3d-cad/pytha-lua-api/wiki/Debugging-with-VS-Code).
 
 ## Requirements
 

@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.5.0
+
+- Debugging no longer requires a `launch.json`: **PYTHA Lua (attach)** is now offered directly in the Run and Debug dropdown, and pressing F5 without any launch configuration attaches straight away. A `launch.json` still works and still takes precedence.
+- Documented that variable values can be edited while stopped, and that logpoints substitute `{expr}` and do not freeze PYTHA.
+
 ## 0.4.0
 
 - The debug server host/port are now configurable via settings (`pytha-lua.port`, `pytha-lua.host`). A `port`/`host` in the launch configuration still overrides the setting.
